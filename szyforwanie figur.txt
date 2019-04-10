@@ -1,0 +1,14 @@
+0 - pawn
+1 - knight
+2 - bishop
+3 - rook
+4 - queen
+5 - king
+
+problem z kordynatami globalnymi(szachownica) i localnymi(dla kazdej ze stron)
+-ustalam ze kazda ze stron w poruszaniu sie ma swoj przod
+-dla globalnej szachownicy poruszanie sie figur jednej ze stron uznaje z odwrotnym znakiem
+
+kolory:
+true == white
+false == black
