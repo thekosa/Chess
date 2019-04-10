@@ -13,8 +13,9 @@ public class BoardPanel extends JPanel {
 
 
     BoardPanel() {
-        setPreferredSize(new Dimension(1000, 1000));
         board = new Board();
+        int windowSize = board.getN() * tileSize + 20;
+        setPreferredSize(new Dimension(windowSize, windowSize));
     }
 
     private void paintBoardPanel(Graphics g) {
@@ -26,11 +27,11 @@ public class BoardPanel extends JPanel {
 
                 g2.setColor(board.getTile(col, row).getColour());
 
-               // Rectangle2D rectangle = new Rectangle2D.Double(col * tileSize + 10, row * tileSize + 10, tileSize, tileSize);
+                // Rectangle2D rectangle = new Rectangle2D.Double(col * tileSize + 10, row * tileSize + 10, tileSize, tileSize);
 
-                g2.fillRect(col, row, tileSize, tileSize);
-
-               // g2.fill(rectangle);
+// g2.fillRect(col, row, tileSize, tileSize);
+                g2.fillRect(col * tileSize + 10, row * tileSize + 10, tileSize, tileSize);
+                // g2.fill(rectangle);
             }
         }
     }
