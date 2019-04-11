@@ -3,23 +3,22 @@ package pl.projekt.szachy;
 import java.awt.*;
 
 public class Tile {
-    private boolean tileColour;
+    private Color tileColor;
 
-    Tile(boolean tileColour) {
-        setTileColour(tileColour);
+    Tile(boolean tileColor) {
+        if (tileColor) {
+            this.tileColor = Color.white;
+        } else {
+            this.tileColor = Color.black;
+        }
     }
 
-    private void setTileColour(boolean tileColour) {
-        this.tileColour = tileColour;
+    Tile(Color tileColor) {
+        this.tileColor = tileColor;
     }
 
-    public boolean getBooleanColour() {
-        return tileColour;
-    }
-
-    public Color getColour() {
-        if (tileColour) return Color.white;
-        else return Color.black;
+    public Color getTileColor() {
+        return tileColor;
     }
 
     /*
@@ -33,8 +32,10 @@ public class Tile {
 
         }
     */
+    /*
     public String toString() {
         if (this.tileColour) return "white";
         else return "black";
     }
+    */
 }

@@ -25,7 +25,7 @@ public class BoardPanel extends JPanel {
             for (int row = 0; row < max; row++) {
                 Graphics2D g2 = (Graphics2D) g;
 
-                g2.setColor(board.getTile(col, row).getColour());
+                g2.setColor(board.getTile(col, row).getTileColor());
 
                 // Rectangle2D rectangle = new Rectangle2D.Double(col * tileSize + 10, row * tileSize + 10, tileSize, tileSize);
 

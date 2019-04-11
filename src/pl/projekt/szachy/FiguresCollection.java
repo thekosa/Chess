@@ -1,9 +1,11 @@
 package pl.projekt.szachy;
 
+import java.awt.*;
+
 public class FiguresCollection {
     private final int pawnQuantity = 8;
     private final int pair = 2;
-    private boolean colour;
+    private Color color;
 
     private Pawn[] pawns;
     private Rook[] rooks;
@@ -12,8 +14,8 @@ public class FiguresCollection {
     private King king;
     private Queen queen;
 
-    FiguresCollection(boolean colour) {
-        this.colour = colour;
+    FiguresCollection(Color color) {
+        this.color = color;
         setPawns();
         setRooks();
         setKnights();
@@ -22,36 +24,40 @@ public class FiguresCollection {
         setQueen();
     }
 
+    public Color getColour() {
+        return color;
+    }
+
     private void setQueen() {
-        queen = new Queen(colour, 5, 0);
+        queen = new Queen(5, 0);
     }
 
     private void setKing() {
-        king = new King(colour, 5, 0);
+        king = new King(5, 0);
     }
 
     private void setBishops() {
         bishops = new Bishop[pair];
-        bishops[0] = new Bishop(colour, 2, 0);
-        bishops[1] = new Bishop(colour, 5, 0);
+        bishops[0] = new Bishop(2, 0);
+        bishops[1] = new Bishop(5, 0);
     }
 
     private void setKnights() {
         knights = new Knight[pair];
-        knights[0] = new Knight(colour, 1, 0);
-        knights[1] = new Knight(colour, 6, 0);
+        knights[0] = new Knight(1, 0);
+        knights[1] = new Knight(6, 0);
     }
 
     private void setRooks() {
         rooks = new Rook[pair];
-        rooks[0] = new Rook(colour, 0, 0);
-        rooks[1] = new Rook(colour, 7, 0);
+        rooks[0] = new Rook(0, 0);
+        rooks[1] = new Rook(7, 0);
     }
 
     private void setPawns() {
         pawns = new Pawn[pawnQuantity];
         for (int i = 0; i < pawnQuantity; i++) {
-            pawns[i] = new Pawn(colour, i, 1);
+            pawns[i] = new Pawn(i, 1);
         }
     }
 }
