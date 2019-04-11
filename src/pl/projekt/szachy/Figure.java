@@ -16,4 +16,9 @@ public abstract class Figure {
     public int getYCordinate() {
         return yCordinate;
     }
+
+    public void move(int xDestCordinate, int yDestCordinate){
+        this.xCordinate=xDestCordinate;
+        this.yCordinate=yDestCordinate;
+    }
 }
