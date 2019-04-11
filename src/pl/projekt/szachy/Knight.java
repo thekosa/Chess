@@ -1,7 +1,9 @@
 package pl.projekt.szachy;
 
+import java.awt.*;
+
 public class Knight extends Figure {
-    Knight(int xCordinate, int yCordinate) {
-        super(xCordinate, yCordinate);
+    Knight(Color color, int xCordinate, int yCordinate) {
+        super(color, xCordinate, yCordinate);
     }
 }

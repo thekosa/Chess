@@ -1,7 +1,9 @@
 package pl.projekt.szachy;
 
+import java.awt.*;
+
 public class Queen extends Figure {
-    Queen(int xCordinate, int yCordinate) {
-        super(xCordinate, yCordinate);
+    Queen(Color color, int xCordinate, int yCordinate) {
+        super(color, xCordinate, yCordinate);
     }
 }

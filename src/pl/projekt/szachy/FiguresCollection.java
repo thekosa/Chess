@@ -1,6 +1,7 @@
 package pl.projekt.szachy;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 public class FiguresCollection {
     private final int pawnQuantity = 8;
@@ -23,41 +24,68 @@ public class FiguresCollection {
         setKing();
         setQueen();
     }
+//promocja piona - czyli wywalenie z piona i zastąpienie go nowym z klasy PromotedPawn
+
+    public ArrayList<int[]> getCordinates() {
+        ArrayList<int[]> figuresCordinatesList = new ArrayList<>();
+        for (Pawn pawn : pawns) {
+            figuresCordinatesList.add(cordinatesMerge(pawn));
+        }
+        for (Rook rook : rooks) {
+            figuresCordinatesList.add(cordinatesMerge(rook));
+        }
+        for (Knight knight : knights) {
+            figuresCordinatesList.add(cordinatesMerge(knight));
+        }
+        for (Bishop bishop : bishops) {
+            figuresCordinatesList.add(cordinatesMerge(bishop));
+        }
+        figuresCordinatesList.add(cordinatesMerge(king));
+        figuresCordinatesList.add(cordinatesMerge(queen));
+        return figuresCordinatesList;
+    }
+
+    private int[] cordinatesMerge(Figure figure) {
+        int[] tempCordinates = new int[2];
+        tempCordinates[0] = figure.getXCordinate();
+        tempCordinates[1] = figure.getYCordinate();
+        return tempCordinates;
+    }
 
     public Color getColour() {
         return color;
     }
 
     private void setQueen() {
-        queen = new Queen(5, 0);
+        queen = new Queen(color, 5, 0);
     }
 
     private void setKing() {
-        king = new King(5, 0);
+        king = new King(color, 5, 0);
     }
 
     private void setBishops() {
         bishops = new Bishop[pair];
-        bishops[0] = new Bishop(2, 0);
-        bishops[1] = new Bishop(5, 0);
+        bishops[0] = new Bishop(color, 2, 0);
+        bishops[1] = new Bishop(color, 5, 0);
     }
 
     private void setKnights() {
         knights = new Knight[pair];
-        knights[0] = new Knight(1, 0);
-        knights[1] = new Knight(6, 0);
+        knights[0] = new Knight(color, 1, 0);
+        knights[1] = new Knight(color, 6, 0);
     }
 
     private void setRooks() {
         rooks = new Rook[pair];
-        rooks[0] = new Rook(0, 0);
-        rooks[1] = new Rook(7, 0);
+        rooks[0] = new Rook(color, 0, 0);
+        rooks[1] = new Rook(color, 7, 0);
     }
 
     private void setPawns() {
         pawns = new Pawn[pawnQuantity];
         for (int i = 0; i < pawnQuantity; i++) {
-            pawns[i] = new Pawn(i, 1);
+            pawns[i] = new Pawn(color, i, 1);
         }
     }
 }

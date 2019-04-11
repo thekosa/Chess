@@ -1,7 +1,9 @@
 package pl.projekt.szachy;
 
+import java.awt.*;
+
 public class Bishop extends Figure {
-    Bishop(int xCordinate, int yCordinate) {
-        super(xCordinate, yCordinate);
+    Bishop(Color color, int xCordinate, int yCordinate) {
+        super(color, xCordinate, yCordinate);
     }
 }

@@ -1,7 +1,9 @@
 package pl.projekt.szachy;
 
+import java.awt.*;
+
 public class Rook extends Figure {
-    Rook(int xCordinate, int yCordinate) {
-        super(xCordinate, yCordinate);
+    Rook(Color color, int xCordinate, int yCordinate) {
+        super(color, xCordinate, yCordinate);
     }
 }

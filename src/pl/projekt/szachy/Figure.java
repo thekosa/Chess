@@ -1,12 +1,18 @@
 package pl.projekt.szachy;
 
-public abstract class Figure {
-    private int xCordinate;
-    private int yCordinate;
+import java.awt.*;
 
-    Figure(int xCordinate, int yCordinate) {
+public abstract class Figure {
+    protected int xCordinate;
+    protected int yCordinate;   //kolejnym krokiem bedzie przerobienie kordynatow na tablice, bo trzeba je nonstop mergowac,
+    //co jest cholernie upierdliwe
+    protected Color color;
+    protected int movesQuantity = 0;
+
+    Figure(Color color, int xCordinate, int yCordinate) {
         this.xCordinate = xCordinate;
         this.yCordinate = yCordinate;
+        this.color = color;
     }
 
     public int getXCordinate() {
@@ -17,8 +23,16 @@ public abstract class Figure {
         return yCordinate;
     }
 
-    public void move(int xDestCordinate, int yDestCordinate){
-        this.xCordinate=xDestCordinate;
-        this.yCordinate=yDestCordinate;
+    public void move(int xDestCordinate, int yDestCordinate) {
+        this.xCordinate = xDestCordinate;
+        this.yCordinate = yDestCordinate;
+        movesQuantity++;
+    }
+
+    protected int[] cordinatesMerge(int xCordinate, int yCordinate) {
+        int[] tempCordinates = new int[2];
+        tempCordinates[0] = xCordinate;
+        tempCordinates[1] = yCordinate;
+        return tempCordinates;
     }
 }
