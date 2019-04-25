@@ -24,7 +24,7 @@ public class FiguresCollection {
         setKing();
         setQueen();
     }
-//promocja piona - czyli wywalenie z piona i zastąpienie go nowym z klasy PromotedPawn
+//todo: promocja piona - czyli wywalenie z piona i zastąpienie go nowym z klasy PromotedPawn
 
     public ArrayList<int[]> getCordinates() {
         ArrayList<int[]> figuresCordinatesList = new ArrayList<>();

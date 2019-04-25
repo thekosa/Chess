@@ -1,7 +1,7 @@
 package pl.projekt.szachy;
 
 public class Board {
-    final private int N = 8; //sprawdzic final
+    final private int N = 8; // number of tiles per row
     private Tile[][] tiles = new Tile[N][N];
 
     Board() {

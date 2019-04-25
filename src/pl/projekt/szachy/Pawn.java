@@ -8,7 +8,7 @@ public class Pawn extends Figure {
     Pawn(Color color, int xCordinate, int yCordinate) {
         super(color, xCordinate, yCordinate);
     }
-
+/*
     //zrobic funkcje figureDetect, dzieki niej bede sprawdzal czy na mozliwych polach do ruchu znajduje sie jakakolwiek figura uniemozliwiajaca ruch
     //druga funkcja oppostieFigureDetect zwracajaca booleana, odpowiadajacego na pytanie, czy jest tam figura obca. Wykorzystam do funkcji mozliwych bic
     public ArrayList<int[]> possibleMoves() {
@@ -43,4 +43,5 @@ possibleMovesCordinates.add(oppositeFigureDetection());
         //pamietac o biciu w przelocie
 
     }
+    */
 }

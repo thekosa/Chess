@@ -11,6 +11,10 @@ public class Window extends JFrame {
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
+    }
 
+    public void startGame(){
+        GameView gameView= new GameView();
+        add(gameView);
     }
 }
