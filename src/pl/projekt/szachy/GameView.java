@@ -11,6 +11,8 @@ public class GameView extends JPanel {
     private final int queenSize = 90;
     private final int rookSize = 100;
     private Game game;
+//todo jezeli bedzie opcja new game - przekazujemy do gamestate zeby odczytywac z odpowiedniego pliku,
+// jezeli wybierzemy co innego to z tego innego
 
 
     GameView() {
