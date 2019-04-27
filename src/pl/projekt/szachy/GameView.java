@@ -10,13 +10,13 @@ public class GameView extends JPanel {
     private final int knightSize = 80;
     private final int queenSize = 90;
     private final int rookSize = 100;
-    private Game game;
+    private GameState gameState;
 //todo jezeli bedzie opcja new game - przekazujemy do gamestate zeby odczytywac z odpowiedniego pliku,
 // jezeli wybierzemy co innego to z tego innego
 
 
     GameView() {
-        game = new Game();
+        gameState = new GameState(true);
     }
 
 
@@ -26,10 +26,15 @@ public class GameView extends JPanel {
 
 
     private void paintFigures(Graphics g) {
-        for (int[] figureCords : game.getGameState()) {
+        for (Figure figure : gameState.getGameState()) {
             Graphics2D g2 = (Graphics2D) g;
             g2.setColor(Color.red);
-            g2.fillOval(figureCords[0]*100+10,figureCords[1]*100+10, 20, 20);
+            //wyciagamy kazda informacje po kolei:
+            // kordynatory wpakowujemy tam gdzie bedzie miejsce okreslajace umiejscowienie obrazka,
+            // kolor bedzie definiowal jaki kolor
+            // nazwa - do nazwy bedziemy dodawac ".jpg" i za pomoca String figureJPGName bedziemy wywolywac obrazek
+
+            // g2.fillOval(figureCords[0]*100+10,figureCords[1]*100+10, 20, 20);
         }
     }
 }

@@ -5,32 +5,29 @@ import java.util.ArrayList;
 
 public class GameState {
     private Board board;
-    private FiguresCollection[] figuresCollections;
-    // public Map<Integer[], Color> gameState = new TreeMap<>();
-    private ArrayList<int[]> gameState;
-    private final Color firstColor = Color.white;
-    private final Color secondColor = Color.black;
-    private String gameStateFileName;
+    private ArrayList<Figure> gameState;
+    private final Color whiteColor = Color.white;
+    private final Color blackColor = Color.black;
+    // private String gameStateFileName;
 
     //todo: skonfigurowac obsluge pliku csv,
 // w pliku bedzie caly stan gry zapisany - czyli: cordx,cordy,kolor,figura
     //todo przed rozpoczeciem pracy sprawdzamy czy plik istnieje zeby rozpoczac gre tworzac nowy plik z nowym stanem, czy czytac stary
-    GameState(String gameStateFileName, boolean isNewGame) {
-        this.gameStateFileName = gameStateFileName;
+
+    GameState(boolean isNewGame) {
         if (isNewGame) {
             setFirstGameState();
         }
-
-
-        /*
-        figuresCollections = new FiguresCollection[2];
-        figuresCollections[0] = new FiguresCollection(firstColor);
-        figuresCollections[1] = new FiguresCollection(secondColor);
-        setFirstGameState();
-    */
     }
 
-    public ArrayList<int[]> getGameState() {
+    GameState(String gameStateFileName, boolean isNewGame) {
+        //    this.gameStateFileName = gameStateFileName;
+        if (isNewGame) {
+            setFirstGameState();
+        }
+    }
+
+    public ArrayList<Figure> getGameState() {
         return gameState;
     }
 /*
@@ -46,31 +43,17 @@ public class GameState {
     */
 
 
-    private ArrayList<int[]> formatCordinates(ArrayList<int[]> cordinates) {
-        for (int[] cords : cordinates) {
-            cords[0] = board.getN() - cords[0];
-            cords[1] = board.getN() - cords[1];
-        }
-        return cordinates;
-    }
-
     private void setFirstGameState() {
-       // gameState = new ArrayList<>(figuresCollections[0].getCordinates());
-        //gameState.addAll(formatCordinates(figuresCollections[1].getCordinates()));
-
-        // Integer[] cordsInteger=new Integer[2];
-        //  for (int[] cords : figuresCollections[0].getCordinates()) {
-        //Integer[] cordsInteger=new Integer(convertIntToInteger(cords));
-
-        //gameState.put(cords, Color.white);
-        //   }
+        FiguresCollection whiteFiguresCollection = new FiguresCollection(whiteColor);
+        FiguresCollection blackFiguresCollection = new FiguresCollection(blackColor);
+        gameState = new ArrayList<>(transformCordinatesOfBlacks(blackFiguresCollection.getFiguresCollectionList()));
+        gameState.addAll(whiteFiguresCollection.getFiguresCollectionList());
     }
 
-    // private Integer[] convertIntToInteger(int[] numbs) {
-    //    Integer[] object = new Integer[numbs.length];
-    //  for (int i = 0; i < numbs.length; i++) {
-    //    object[i] = Integer.valueOf(numbs[i]);
-    //}
-    //return object;
-    // }
+    private ArrayList<Figure> transformCordinatesOfBlacks(ArrayList<Figure> blackFiguresList) {
+        for (Figure figure : blackFiguresList) {
+            figure.transformCordinates(board.getN());
+        }
+        return blackFiguresList;
+    }
 }

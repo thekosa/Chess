@@ -2,11 +2,13 @@ package pl.projekt.szachy;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class FiguresCollection {
     private final int pawnQuantity = 8;
     private final int pair = 2;
     private Color color;
+    private ArrayList<Figure> figuresCollectionList;
 
     private Pawn[] pawns;
     private Rook[] rooks;
@@ -26,36 +28,33 @@ public class FiguresCollection {
     }
 //todo: promocja piona - czyli wywalenie z piona i zastąpienie go nowym z klasy PromotedPawn
 
-    public ArrayList<int[]> getCordinates() {
-        ArrayList<int[]> figuresCordinatesList = new ArrayList<>();
-        for (Pawn pawn : pawns) {
-            figuresCordinatesList.add(cordinatesMerge(pawn));
-        }
-        for (Rook rook : rooks) {
-            figuresCordinatesList.add(cordinatesMerge(rook));
-        }
-        for (Knight knight : knights) {
-            figuresCordinatesList.add(cordinatesMerge(knight));
-        }
-        for (Bishop bishop : bishops) {
-            figuresCordinatesList.add(cordinatesMerge(bishop));
-        }
-        figuresCordinatesList.add(cordinatesMerge(king));
-        figuresCordinatesList.add(cordinatesMerge(queen));
-        return figuresCordinatesList;
-    }
 
-    private int[] cordinatesMerge(Figure figure) {
-        int[] tempCordinates = new int[2];
-        tempCordinates[0] = figure.getXCordinate();
-        tempCordinates[1] = figure.getYCordinate();
-        return tempCordinates;
+    public ArrayList<Figure> getFiguresCollectionList() {
+        return figuresCollectionList;
     }
 
     public Color getColour() {
         return color;
     }
 
+    private void setFiguresCollectionList() {
+        figuresCollectionList = new ArrayList<>();
+        Collections.addAll(figuresCollectionList, pawns);
+        Collections.addAll(figuresCollectionList, rooks);
+        Collections.addAll(figuresCollectionList, knights);
+        Collections.addAll(figuresCollectionList, bishops);
+        figuresCollectionList.add(king);
+        figuresCollectionList.add(queen);
+    }
+
+    /*
+    private int[] cordinatesMerge(Figure figure) {
+        int[] tempCordinates = new int[2];
+        tempCordinates[0] = figure.getXCordinate();
+        tempCordinates[1] = figure.getYCordinate();
+        return tempCordinates;
+    }
+*/
     private void setQueen() {
         queen = new Queen(color, 5, 0);
     }

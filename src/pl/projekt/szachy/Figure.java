@@ -8,11 +8,16 @@ public abstract class Figure {
     //co jest cholernie upierdliwe
     protected Color color;
     protected int movesQuantity = 0;
+    private String name;
 
-    Figure(Color color, int xCordinate, int yCordinate) {
+    Figure(Color color, int xCordinate, int yCordinate, String name) {
         this.xCordinate = xCordinate;
         this.yCordinate = yCordinate;
         this.color = color;
+    }
+
+    public Color getColor() {
+        return color;
     }
 
     public int getXCordinate() {
@@ -21,6 +26,11 @@ public abstract class Figure {
 
     public int getYCordinate() {
         return yCordinate;
+    }
+
+    public void transformCordinates(int tilesQuantity) {
+        xCordinate = tilesQuantity - xCordinate;
+        yCordinate = tilesQuantity - yCordinate;
     }
 
     public void move(int xDestCordinate, int yDestCordinate) {
