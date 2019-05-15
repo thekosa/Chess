@@ -26,7 +26,7 @@ public class FiguresCollection {
         setKing();
         setQueen();
     }
-//todo: promocja piona - czyli wywalenie z piona i zastąpienie go nowym z klasy PromotedPawn
+//todo: promocja piona - czyli wywalenie piona z listy i zastąpienie go nowym z klasy PromotedPawn
 
 
     public ArrayList<Figure> getFiguresCollectionList() {
@@ -47,14 +47,6 @@ public class FiguresCollection {
         figuresCollectionList.add(queen);
     }
 
-    /*
-    private int[] cordinatesMerge(Figure figure) {
-        int[] tempCordinates = new int[2];
-        tempCordinates[0] = figure.getXCordinate();
-        tempCordinates[1] = figure.getYCordinate();
-        return tempCordinates;
-    }
-*/
     private void setQueen() {
         queen = new Queen(color, 5, 0);
     }
