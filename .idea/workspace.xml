@@ -166,7 +166,7 @@
     </treeState>
   </component>
   <component name="ProjectFrameBounds" extendedState="7">
-    <option name="x" value="-8" />
+    <option name="x" value="326" />
     <option name="y" value="-8" />
     <option name="width" value="1612" />
     <option name="height" value="876" />
@@ -213,7 +213,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$USER_HOME$/Desktop/JavaFX-Online-Chess-master" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="project.structure.last.edited" value="Problems" />
@@ -313,12 +313,12 @@
       <workItem from="1557337091989" duration="476000" />
       <workItem from="1557935713922" duration="2497000" />
       <workItem from="1557949354901" duration="1104000" />
-      <workItem from="1558002234099" duration="1235000" />
+      <workItem from="1558002234099" duration="2353000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="57203000" />
+    <option name="totallyTimeSpent" value="58321000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
