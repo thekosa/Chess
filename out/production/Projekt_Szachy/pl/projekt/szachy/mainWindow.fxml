@@ -7,9 +7,11 @@
       prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="pl.projekt.szachy.MainWindowController">
     <children>
-        <Button fx:id="newGameButton" layoutX="1023.0" layoutY="658.0" mnemonicParsing="false" prefHeight="48.0"
-                prefWidth="243.0" text="Nowa Gra" onAction="newGameButtonClicked"/>
-        <Button fx:id="loadGameButton" layoutX="1023.0" layoutY="602.0" mnemonicParsing="false" prefHeight="48.0"
-                prefWidth="243.0" text="Wczytaj gre" onAction="loadNewButtonClicked"/>
+        <Button fx:id="newGameButton" layoutX="1023.0" layoutY="658.0" mnemonicParsing="false"
+                onAction="#newGameButtonAction" prefHeight="48.0" prefWidth="243.0" text="Nowa Gra"/>
+        <Button fx:id="loadGameButton" layoutX="1023.0" layoutY="602.0" mnemonicParsing="false"
+                onAction="#loadGameButtonAction" prefHeight="48.0" prefWidth="243.0" text="Wczytaj gre"/>
+        <Button fx:id="saveGameButton" layoutX="1023.0" layoutY="544.0" mnemonicParsing="false"
+                onAction="#saveGameButtonAction" prefHeight="48.0" prefWidth="243.0" text="Zapisz gre"/>
     </children>
 </Pane>
