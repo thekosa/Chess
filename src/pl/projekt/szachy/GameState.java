@@ -1,5 +1,7 @@
 package pl.projekt.szachy;
 
+import javafx.scene.Scene;
+
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -42,6 +44,13 @@ public class GameState {
     }
     */
 
+public void saveGame(String nameOfSavedGame){
+
+    //robimy nowy plik
+    for(Figure figure:gameState){
+        //zapisujemy kazda po kolei w pliku
+    }
+}
 
     private void setFirstGameState() {
         FiguresCollection whiteFiguresCollection = new FiguresCollection(whiteColor);
