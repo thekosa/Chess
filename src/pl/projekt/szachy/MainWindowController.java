@@ -1,7 +1,6 @@
 package pl.projekt.szachy;
 
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -78,18 +77,15 @@ public class MainWindowController implements Initializable {
     public Rectangle tile_7_7;
     public TextField saveGameNameText;
 
+    public Button newGameButton;
+    public Button loadGameButton;
+    public Button saveGameButton;
+    public GridPane chessBoardGridPane;
+
 
     public Button przycisk;
 
-    @FXML
-    Button newGameButton;
-    @FXML
-    Button loadGameButton;
-    @FXML
-    Button saveGameButton;
-    @FXML
-    GridPane chessBoardGridPane;
-
+    private GameState gameState;
 
 //todo jezeli bedzie opcja new game - przekazujemy do gamestate zeby odczytywac z odpowiedniego pliku,
 // jezeli wybierzemy co innego to z tego innego
@@ -101,14 +97,31 @@ public class MainWindowController implements Initializable {
 
     public void newGameButtonAction() {
         System.out.println("nowa gra");
-        // GameState gameState;
-        //   gameState = new GameState(true);
-        // for (Figure figure : gameState.getGameState()) {
-        //wyciagamy kazda informacje po kolei:
-        // kordynatory wpakowujemy tam gdzie bedzie miejsce okreslajace umiejscowienie obrazka,
-        // kolor bedzie definiowal jaki kolor
-        // nazwa - do nazwy bedziemy dodawac ".jpg" i za pomoca String figureJPGName bedziemy wywolywac obrazek
-        //  }
+        for (int i = 0; i < 8; i++) {
+            Button button = new Button();
+            button.setStyle("-fx-background-color: transparent;" +
+                    " -fx-background-image: url(/pl/projekt/szachy/assets/black_pawn.png);" +
+                    " -fx-background-repeat: stretch;" +
+                    " -fx-background-position: center center;" +
+                    " -fx-background-size: auto 100%;");
+
+            button.setPrefSize(100,100);
+            button.setId("vutton" + i);
+            System.out.println(button.idProperty());
+            chessBoardGridPane.add(button, i, 0);
+        }
+
+
+        //    gameState = new GameState(true);
+//        for (Figure figure : gameState.getGameState()) {
+        //         Button button = new Button();
+        //        button.setStyle(getButtonStyle(figure));
+        //       System.out.println(button.idProperty());
+        //  button.setPrefSize(100,100);
+        // button.setId(getButtonId());
+
+//            chessBoardGridPane.add(button, figure.getXCordinate(), figure.getYCordinate());
+        //      }
     }
 
     public void loadGameButtonAction() {
@@ -124,5 +137,21 @@ public class MainWindowController implements Initializable {
 
     public void przyciskAkcja(ActionEvent actionEvent) {
         System.out.println("chujow sto");
+    }
+
+    private String getButtonId(Figure figure) {
+        return figure.getColor().toString() + "_" + figure.getName() + "_" + figure.getXCordinate() + "_" + figure.getYCordinate();
+    }
+
+    private String getButtonStyle(Figure figure) {
+        String figureColor = figure.getColor().toString();
+        String figureName = figure.getName();
+
+        return "-fx-background-color: transparent;" +
+                " -fx-background-image: url(/pl/projekt/szachy/assets/" + figureColor + "_" + figureName + ".png);" +
+                " -fx-background-repeat: stretch;" +
+                " -fx-background-position: center center;" +
+                " -fx-background-size: auto 100%;";
+
     }
 }

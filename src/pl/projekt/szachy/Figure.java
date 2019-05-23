@@ -3,8 +3,8 @@ package pl.projekt.szachy;
 import java.awt.*;
 
 public abstract class Figure {
-    protected int xCordinate;
-    protected int yCordinate;   //kolejnym krokiem bedzie przerobienie kordynatow na tablice, bo trzeba je nonstop mergowac,
+    private int xCordinate;
+    private int yCordinate;   //kolejnym krokiem bedzie przerobienie kordynatow na tablice, bo trzeba je nonstop mergowac,
     //co jest cholernie upierdliwe
     protected Color color;
     protected int movesQuantity = 0;
@@ -14,6 +14,11 @@ public abstract class Figure {
         this.xCordinate = xCordinate;
         this.yCordinate = yCordinate;
         this.color = color;
+        this.name=name;
+    }
+
+    public String getName(){
+        return name;
     }
 
     public Color getColor() {

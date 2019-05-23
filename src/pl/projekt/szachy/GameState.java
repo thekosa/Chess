@@ -32,25 +32,18 @@ public class GameState {
     public ArrayList<Figure> getGameState() {
         return gameState;
     }
-/*
-    public Color getColor(int numberOfColor) {
-        if (numberOfColor == 0) {
-            return firstColor;
-        } else if (numberOfColor == 1) {
-            return secondColor;
-        } else {
-            return Color.RED;//wyjatek?
+
+    public void saveGame(String nameOfSavedGame) {
+
+        //robimy nowy plik
+        for (Figure figure : gameState) {
+            //zapisujemy kazda po kolei w pliku
         }
     }
-    */
 
-public void saveGame(String nameOfSavedGame){
-
-    //robimy nowy plik
-    for(Figure figure:gameState){
-        //zapisujemy kazda po kolei w pliku
+    public Board getBoard(){
+        return board;
     }
-}
 
     private void setFirstGameState() {
         FiguresCollection whiteFiguresCollection = new FiguresCollection(whiteColor);
