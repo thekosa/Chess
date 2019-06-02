@@ -1,14 +1,21 @@
 package pl.projekt.szachy;
 
+import com.sun.corba.se.impl.orbutil.graph.Node;
+import javafx.beans.InvalidationListener;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.shape.Rectangle;
 
 import java.net.URL;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class MainWindowController implements Initializable {
     public Rectangle tile_0_0;
@@ -75,6 +82,7 @@ public class MainWindowController implements Initializable {
     public Rectangle tile_5_7;
     public Rectangle tile_6_7;
     public Rectangle tile_7_7;
+
     public TextField saveGameNameText;
 
     public Button newGameButton;
@@ -105,13 +113,13 @@ public class MainWindowController implements Initializable {
                     " -fx-background-position: center center;" +
                     " -fx-background-size: auto 100%;");
 
-            button.setPrefSize(100,100);
+            button.setOnAction(figureButtonAction);
+            button.setPrefSize(100, 100);
             button.setId("vutton" + i);
             System.out.println(button.idProperty());
             chessBoardGridPane.add(button, i, 0);
+
         }
-
-
         //    gameState = new GameState(true);
 //        for (Figure figure : gameState.getGameState()) {
         //         Button button = new Button();
@@ -135,13 +143,20 @@ public class MainWindowController implements Initializable {
         //spisanie stanu gry do pliku
     }
 
-    public void przyciskAkcja(ActionEvent actionEvent) {
+    public void przyciskAkcja() {
         System.out.println("chujow sto");
+        chessBoardGridPane.add(przycisk, 3,3);
+        przycisk.setTranslateX(tile_6_6.getX());
     }
 
     private String getButtonId(Figure figure) {
         return figure.getColor().toString() + "_" + figure.getName() + "_" + figure.getXCordinate() + "_" + figure.getYCordinate();
     }
+
+    private EventHandler<ActionEvent> figureButtonAction = event -> {
+        System.out.println("chujow dwiescie");
+
+    };
 
     private String getButtonStyle(Figure figure) {
         String figureColor = figure.getColor().toString();
