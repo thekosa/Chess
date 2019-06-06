@@ -118,7 +118,6 @@ public class MainWindowController implements Initializable {
             button.setId("vutton" + i);
             System.out.println(button.idProperty());
             chessBoardGridPane.add(button, i, 0);
-
         }
         //    gameState = new GameState(true);
 //        for (Figure figure : gameState.getGameState()) {
