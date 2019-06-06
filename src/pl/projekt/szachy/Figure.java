@@ -3,51 +3,32 @@ package pl.projekt.szachy;
 import java.awt.*;
 
 public abstract class Figure {
-    private int xCordinate;
-    private int yCordinate;   //kolejnym krokiem bedzie przerobienie kordynatow na tablice, bo trzeba je nonstop mergowac,
-    //co jest cholernie upierdliwe
     protected Color color;
-    protected int movesQuantity = 0;
+    private int movesQuantity = 0;
     private String name;
 
-    Figure(Color color, int xCordinate, int yCordinate, String name) {
-        this.xCordinate = xCordinate;
-        this.yCordinate = yCordinate;
+    Figure(Color color, String name) {
         this.color = color;
-        this.name=name;
+        this.name = name;
     }
 
-    public String getName(){
+    public String getColorToString() {
+        if (color == Color.black) {
+            return "black";
+        } else {
+            return "white";
+        }
+    }
+
+    public void incrementMovesQuantity() {
+        movesQuantity++;
+    }
+
+    public String getName() {
         return name;
     }
 
     public Color getColor() {
         return color;
-    }
-
-    public int getXCordinate() {
-        return xCordinate;
-    }
-
-    public int getYCordinate() {
-        return yCordinate;
-    }
-
-    public void transformCordinates(int tilesQuantity) {
-        xCordinate = tilesQuantity - xCordinate;
-        yCordinate = tilesQuantity - yCordinate;
-    }
-
-    public void move(int xDestCordinate, int yDestCordinate) {
-        this.xCordinate = xDestCordinate;
-        this.yCordinate = yDestCordinate;
-        movesQuantity++;
-    }
-
-    protected int[] cordinatesMerge(int xCordinate, int yCordinate) {
-        int[] tempCordinates = new int[2];
-        tempCordinates[0] = xCordinate;
-        tempCordinates[1] = yCordinate;
-        return tempCordinates;
     }
 }

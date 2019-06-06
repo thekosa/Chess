@@ -5,8 +5,8 @@ import java.util.ArrayList;
 
 
 public class Pawn extends Figure {
-    Pawn(Color color, int xCordinate, int yCordinate) {
-        super(color, xCordinate, yCordinate, "pawn");
+    Pawn(Color color) {
+        super(color, "pawn");
     }
 /*
     //zrobic funkcje figureDetect, dzieki niej bede sprawdzal czy na mozliwych polach do ruchu znajduje sie jakakolwiek figura uniemozliwiajaca ruch

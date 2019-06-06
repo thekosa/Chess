@@ -1,99 +1,26 @@
 package pl.projekt.szachy;
 
-import com.sun.corba.se.impl.orbutil.graph.Node;
-import javafx.beans.InvalidationListener;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.GridPane;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
 
 import java.net.URL;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class MainWindowController implements Initializable {
-    public Rectangle tile_0_0;
-    public Rectangle tile_1_0;
-    public Rectangle tile_2_0;
-    public Rectangle tile_3_0;
-    public Rectangle tile_4_0;
-    public Rectangle tile_5_0;
-    public Rectangle tile_6_0;
-    public Rectangle tile_7_0;
-    public Rectangle tile_0_1;
-    public Rectangle tile_1_1;
-    public Rectangle tile_2_1;
-    public Rectangle tile_3_1;
-    public Rectangle tile_4_1;
-    public Rectangle tile_5_1;
-    public Rectangle tile_6_1;
-    public Rectangle tile_7_1;
-    public Rectangle tile_0_2;
-    public Rectangle tile_1_2;
-    public Rectangle tile_2_2;
-    public Rectangle tile_3_2;
-    public Rectangle tile_4_2;
-    public Rectangle tile_5_2;
-    public Rectangle tile_6_2;
-    public Rectangle tile_7_2;
-    public Rectangle tile_0_3;
-    public Rectangle tile_1_3;
-    public Rectangle tile_2_3;
-    public Rectangle tile_3_3;
-    public Rectangle tile_4_3;
-    public Rectangle tile_5_3;
-    public Rectangle tile_6_3;
-    public Rectangle tile_7_3;
-    public Rectangle tile_0_4;
-    public Rectangle tile_1_4;
-    public Rectangle tile_2_4;
-    public Rectangle tile_3_4;
-    public Rectangle tile_4_4;
-    public Rectangle tile_5_4;
-    public Rectangle tile_6_4;
-    public Rectangle tile_7_4;
-    public Rectangle tile_0_5;
-    public Rectangle tile_1_5;
-    public Rectangle tile_2_5;
-    public Rectangle tile_3_5;
-    public Rectangle tile_4_5;
-    public Rectangle tile_5_5;
-    public Rectangle tile_6_5;
-    public Rectangle tile_7_5;
-    public Rectangle tile_0_6;
-    public Rectangle tile_1_6;
-    public Rectangle tile_2_6;
-    public Rectangle tile_3_6;
-    public Rectangle tile_4_6;
-    public Rectangle tile_5_6;
-    public Rectangle tile_6_6;
-    public Rectangle tile_7_6;
-    public Rectangle tile_0_7;
-    public Rectangle tile_1_7;
-    public Rectangle tile_2_7;
-    public Rectangle tile_3_7;
-    public Rectangle tile_4_7;
-    public Rectangle tile_5_7;
-    public Rectangle tile_6_7;
-    public Rectangle tile_7_7;
-
-    public TextField saveGameNameText;
+    public Pane chessBoardPane;
 
     public Button newGameButton;
     public Button loadGameButton;
     public Button saveGameButton;
-    public GridPane chessBoardGridPane;
+    public TextField saveGameNameText;
 
+    // public Button przycisk;
 
-    public Button przycisk;
-
-    private GameState gameState;
+    private final int tileSize = 100;
 
 //todo jezeli bedzie opcja new game - przekazujemy do gamestate zeby odczytywac z odpowiedniego pliku,
 // jezeli wybierzemy co innego to z tego innego
@@ -104,7 +31,7 @@ public class MainWindowController implements Initializable {
     }
 
     public void newGameButtonAction() {
-        System.out.println("nowa gra");
+        System.out.println("nowa gra");/*
         for (int i = 0; i < 8; i++) {
             Button button = new Button();
             button.setStyle("-fx-background-color: transparent;" +
@@ -118,17 +45,22 @@ public class MainWindowController implements Initializable {
             button.setId("vutton" + i);
             System.out.println(button.idProperty());
             chessBoardGridPane.add(button, i, 0);
-        }
-        //    gameState = new GameState(true);
-//        for (Figure figure : gameState.getGameState()) {
-        //         Button button = new Button();
-        //        button.setStyle(getButtonStyle(figure));
-        //       System.out.println(button.idProperty());
-        //  button.setPrefSize(100,100);
-        // button.setId(getButtonId());
+        }*/
+        GameState gameState = new GameState();
 
-//            chessBoardGridPane.add(button, figure.getXCordinate(), figure.getYCordinate());
-        //      }
+        for (int i = 0; i < Board.getN(); i++) {
+            for (int j = 0; j < Board.getN() && GameState.getGameState()[i][j] != null; j++) {
+
+                ImageView imageView = new ImageView();
+                imageView.setImage(getFigureImage(i, j));
+                imageView.setFitHeight(tileSize);
+                imageView.setFitWidth(tileSize);
+                imageView.setLayoutX(i * tileSize);
+                imageView.setLayoutY(j * tileSize);
+                chessBoardPane.getChildren().add(imageView);
+                System.out.println("piekne spierdolenie");
+            }
+        }
     }
 
     public void loadGameButtonAction() {
@@ -142,22 +74,16 @@ public class MainWindowController implements Initializable {
         //spisanie stanu gry do pliku
     }
 
-    public void przyciskAkcja() {
-        System.out.println("chujow sto");
-        chessBoardGridPane.add(przycisk, 3,3);
-        przycisk.setTranslateX(tile_6_6.getX());
+    private Image getFigureImage(int row, int column) {
+        Figure figure = GameState.getGameState()[row][column];
+        String figureColor = figure.getColorToString();
+        String figureName = figure.getName();
+        String string = "@assets/" + figureColor + "_" + figureName + ".png";
+        return new Image(string);
     }
-
-    private String getButtonId(Figure figure) {
-        return figure.getColor().toString() + "_" + figure.getName() + "_" + figure.getXCordinate() + "_" + figure.getYCordinate();
-    }
-
-    private EventHandler<ActionEvent> figureButtonAction = event -> {
-        System.out.println("chujow dwiescie");
-
-    };
-
-    private String getButtonStyle(Figure figure) {
+/*
+    private String getLabelStyle(int row, int column) {
+        Figure figure = GameState.getGameState()[row][column];
         String figureColor = figure.getColor().toString();
         String figureName = figure.getName();
 
@@ -166,6 +92,6 @@ public class MainWindowController implements Initializable {
                 " -fx-background-repeat: stretch;" +
                 " -fx-background-position: center center;" +
                 " -fx-background-size: auto 100%;";
-
     }
+*/
 }

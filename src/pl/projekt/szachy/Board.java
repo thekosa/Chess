@@ -1,7 +1,7 @@
 package pl.projekt.szachy;
 
 public class Board {
-    final private int N = 8; // number of tiles per row
+    final private static int N = 8; // number of tiles per row
     private Tile[][] tiles = new Tile[N][N];
 
     Board() {
@@ -20,7 +20,7 @@ public class Board {
         return tiles[colValue][rowValue];
     }
 
-    public int getN() {
+    public static int getN() {
         return N;
     }
 

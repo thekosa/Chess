@@ -20,22 +20,4 @@ public class Tile {
     public Color getTileColor() {
         return tileColor;
     }
-
-    /*
-        public int[] getRGBColour() {
-            int[] rgb = new int[3];
-            int a;
-            if (this.tileColour) a = 255;
-            else a = 0;
-            for (int i : rgb) i = a;
-            return rgb;
-
-        }
-    */
-    /*
-    public String toString() {
-        if (this.tileColour) return "white";
-        else return "black";
-    }
-    */
 }
