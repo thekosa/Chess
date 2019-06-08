@@ -4,8 +4,6 @@ import java.awt.*;
 
 public class GameState {
     private static Figure[][] gameState = new Figure[Board.getN()][Board.getN()];
-    // private String gameStateFileName;
-
     //todo: skonfigurowac obsluge pliku csv,
 // w pliku bedzie caly stan gry zapisany - czyli: cordx,cordy,kolor,figura
     //todo przed rozpoczeciem pracy sprawdzamy czy plik istnieje zeby rozpoczac gre tworzac nowy plik z nowym stanem, czy czytac stary
@@ -17,6 +15,15 @@ public class GameState {
     GameState(String gameStateFileName) {
         //this.gameStateFileName = gameStateFileName;
         setFirstGameState();
+    }
+
+    public static void main(String[] args) {
+        new GameState();
+        for (int i = 0; i < Board.getN(); i++) {
+            for (int j = 0; j < Board.getN() && GameState.getGameState()[i][j] != null; j++) {
+                System.out.println(i + "i" + j + GameState.getGameState()[i][j].getName() + GameState.getGameState()[i][j].getColorToString());
+            }
+        }
     }
 
     public static Figure[][] getGameState() {
@@ -60,13 +67,12 @@ public class GameState {
         setBishops();
         setKings();
         setQueens();
-        for (int i = 0; i < Board.getN(); i++) {
-            for (int j = 2; j <= 5; j++) {
+        for (int i = 2; i <= 5; i++) {
+            for (int j = 0; j < Board.getN(); j++) {
                 gameState[i][j] = null;
             }
         }
     }
-
 
     private void setQueens() {
         gameState[0][4] = new Queen(Color.black);

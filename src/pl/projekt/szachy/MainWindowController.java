@@ -6,7 +6,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.*;
 
@@ -17,12 +21,18 @@ public class MainWindowController implements Initializable {
     public Button loadGameButton;
     public Button saveGameButton;
     public TextField saveGameNameText;
-    public ImageView url;
 
-    // public Button przycisk;
+    public Button makeMoveButton;
+    public TextField moveFromColumn;
+    public TextField moveFromRow;
+    public TextField moveToColumn;
+    public TextField moveToRow;
+
+    public Rectangle sideInfoSquere;
 
     private final int tileSize = 100;
 
+    private GameState gameState;
 //todo jezeli bedzie opcja new game - przekazujemy do gamestate zeby odczytywac z odpowiedniego pliku,
 // jezeli wybierzemy co innego to z tego innego
 
@@ -31,23 +41,19 @@ public class MainWindowController implements Initializable {
 
     }
 
-    public void newGameButtonAction() {
-        System.out.println("nowa gra");/*
-        for (int i = 0; i < 8; i++) {
-            Button button = new Button();
-            button.setStyle("-fx-background-color: transparent;" +
-                    " -fx-background-image: url(/pl/projekt/szachy/assets/black_pawn.png);" +
-                    " -fx-background-repeat: stretch;" +
-                    " -fx-background-position: center center;" +
-                    " -fx-background-size: auto 100%;");
+    public void makeMoveAction() {
+        gameState.move(Integer.parseInt(moveFromRow.getText()),
+                Integer.parseInt(moveFromColumn.getText()),
+                Integer.parseInt(moveToRow.getText()),
+                Integer.parseInt((moveToColumn.getText())));
 
-            button.setOnAction(figureButtonAction);
-            button.setPrefSize(100, 100);
-            button.setId("vutton" + i);
-            System.out.println(button.idProperty());
-            chessBoardGridPane.add(button, i, 0);
-        }*/
-        GameState gameState = new GameState();
+        Round.changeSide();
+    }
+
+    public void newGameButtonAction() {
+        System.out.println("nowa gra");
+        gameState = new GameState();
+        new Round();
 
         for (int i = 0; i < Board.getN(); i++) {
             for (int j = 0; j < Board.getN() && GameState.getGameState()[i][j] != null; j++) {
@@ -56,12 +62,14 @@ public class MainWindowController implements Initializable {
                 imageView.setImage(getFigureImage(i, j));
                 imageView.setFitHeight(tileSize);
                 imageView.setFitWidth(tileSize);
-                imageView.setLayoutX(i * tileSize);
-                imageView.setLayoutY(j * tileSize);
+                imageView.setLayoutX(j * tileSize);
+                imageView.setLayoutY(i * tileSize);
                 chessBoardPane.getChildren().add(imageView);
-                System.out.println("piekne spierdolenie");
+                System.out.println("piekne spierdolenie" + i + j);
             }
         }
+        sideInfoSquere.setVisible(true);
+        System.out.println("gowno ostatecnze");
     }
 
     public void loadGameButtonAction() {
@@ -75,24 +83,27 @@ public class MainWindowController implements Initializable {
         //spisanie stanu gry do pliku
     }
 
+    private void refreshChessBoard() {
+        for (int i = 0; i < Board.getN(); i++) {
+            for (int j = 0; j < Board.getN() && GameState.getGameState()[i][j] != null; j++) {
+//nie wiem jak to przesuwac
+            }
+        }
+        sideInfoSquere.setFill(Round.getSideColor());
+    }
+
     private Image getFigureImage(int row, int column) {
         Figure figure = GameState.getGameState()[row][column];
         String figureColor = figure.getColorToString();
         String figureName = figure.getName();
+        //F:\Michal\sprawy szkolne\Studia\WAT\IV\JTP\projekt\RepositoryClone\Chess\Chess\src\pl\projekt\szachy\assets\black_king.png
         String string = "src/pl/projekt/szachy/assets/" + figureColor + "_" + figureName + ".png";
-        return new Image(getClass().getResource(string).toExternalForm());
+        try {
+            FileInputStream fileInputStream = new FileInputStream(string);
+            return new Image(fileInputStream);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null; //trzeba to zmienic
+        }
     }
-/*
-    private String getLabelStyle(int row, int column) {
-        Figure figure = GameState.getGameState()[row][column];
-        String figureColor = figure.getColor().toString();
-        String figureName = figure.getName();
-
-        return "-fx-background-color: transparent;" +
-                " -fx-background-image: url(/pl/projekt/szachy/assets/" + figureColor + "_" + figureName + ".png);" +
-                " -fx-background-repeat: stretch;" +
-                " -fx-background-position: center center;" +
-                " -fx-background-size: auto 100%;";
-    }
-*/
 }
