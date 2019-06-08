@@ -17,13 +17,11 @@
         <Line endX="153.0" layoutX="1106.0" layoutY="571.0" startX="-151.7928466796875" startY="-1.20709228515625" />
         <Line endX="-151.5" endY="140.0858154296875" layoutX="1105.0" layoutY="429.0" startX="-151.5" startY="292.5" />
         <Line endX="-151.5" endY="142.0" layoutX="1410.0" layoutY="429.0" startX="-151.5" startY="292.5" />
-        <Pane fx:id="chessBoard" layoutX="85.0" layoutY="50.0" prefHeight="800.0" prefWidth="800.0" style="-fx-background-image: url(/pl/projekt/szachy/assets/Szachownica.png);">
-         <children>
-            <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="390.0" layoutY="400.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@assets/black_rok.png" />
-               </image>
-            </ImageView>
-         </children></Pane>
+        <Pane fx:id="chessBoard" layoutX="85.0" layoutY="50.0" prefHeight="800.0" prefWidth="800.0" style="-fx-background-image: url(/pl/projekt/szachy/assets/Szachownica.png);" />
+      <ImageView fx:id="url" fitHeight="150.0" fitWidth="200.0" layoutX="907.0" layoutY="392.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@assets/black_rok.png" />
+         </image>
+      </ImageView>
     </children>
 </Pane>

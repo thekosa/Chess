@@ -17,6 +17,7 @@ public class MainWindowController implements Initializable {
     public Button loadGameButton;
     public Button saveGameButton;
     public TextField saveGameNameText;
+    public ImageView url;
 
     // public Button przycisk;
 
@@ -78,8 +79,8 @@ public class MainWindowController implements Initializable {
         Figure figure = GameState.getGameState()[row][column];
         String figureColor = figure.getColorToString();
         String figureName = figure.getName();
-        String string = "@assets/" + figureColor + "_" + figureName + ".png";
-        return new Image(string);
+        String string = "src/pl/projekt/szachy/assets/" + figureColor + "_" + figureName + ".png";
+        return new Image(getClass().getResource(string).toExternalForm());
     }
 /*
     private String getLabelStyle(int row, int column) {
