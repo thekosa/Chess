@@ -1,6 +1,6 @@
 package pl.projekt.szachy;
 
-import java.awt.*;
+import javafx.scene.paint.Color;
 
 public class Queen extends Figure {
     Queen(Color color) {

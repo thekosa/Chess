@@ -1,9 +1,10 @@
 package pl.projekt.szachy;
 
-import java.awt.*;
+import javafx.scene.paint.Color;
 
 public class GameState {
     private static Figure[][] gameState = new Figure[Board.getN()][Board.getN()];
+    private static Round round = new Round();
     //todo: skonfigurowac obsluge pliku csv,
 // w pliku bedzie caly stan gry zapisany - czyli: cordx,cordy,kolor,figura
     //todo przed rozpoczeciem pracy sprawdzamy czy plik istnieje zeby rozpoczac gre tworzac nowy plik z nowym stanem, czy czytac stary
@@ -26,11 +27,16 @@ public class GameState {
         }
     }
 
+    public static Round getRound() {
+        return round;
+    }
+
     public static Figure[][] getGameState() {
         return gameState;
     }
 
     public void move(int sourceRow, int sourceColumn, int destinationRow, int destinationColumn) {
+        capture(destinationRow, destinationColumn);
         gameState[sourceRow][sourceColumn].incrementMovesQuantity();
         gameState[destinationRow][destinationColumn] = gameState[sourceRow][sourceColumn];
         gameState[sourceRow][sourceColumn] = null;
@@ -60,6 +66,16 @@ public class GameState {
     public void saveGame(String nameOfSavedGame) {
     }
 
+    private void capture(int i, int j) {
+        if (isCapture(i, j)) {
+            gameState[i][j] = null;
+        }
+    }
+
+    private boolean isCapture(int i, int j) {
+        return gameState[i][j] != null;
+    }
+
     private void setFirstGameState() {
         setPawns();
         setRooks();
@@ -75,42 +91,42 @@ public class GameState {
     }
 
     private void setQueens() {
-        gameState[0][4] = new Queen(Color.black);
-        gameState[7][4] = new Queen(Color.white);
+        gameState[0][4] = new Queen(Color.BLACK);
+        gameState[7][4] = new Queen(Color.WHITE);
     }
 
     private void setKings() {
-        gameState[0][3] = new King(Color.black);
-        gameState[7][3] = new King(Color.white);
+        gameState[0][3] = new King(Color.BLACK);
+        gameState[7][3] = new King(Color.WHITE);
     }
 
     private void setBishops() {
-        gameState[0][2] = new Bishop(Color.black);
-        gameState[0][5] = new Bishop(Color.black);
-        gameState[7][2] = new Bishop(Color.white);
-        gameState[7][5] = new Bishop(Color.white);
+        gameState[0][2] = new Bishop(Color.BLACK);
+        gameState[0][5] = new Bishop(Color.BLACK);
+        gameState[7][2] = new Bishop(Color.WHITE);
+        gameState[7][5] = new Bishop(Color.WHITE);
     }
 
     private void setKnights() {
-        gameState[0][1] = new Knight(Color.black);
-        gameState[0][6] = new Knight(Color.black);
-        gameState[7][1] = new Knight(Color.white);
-        gameState[7][6] = new Knight(Color.white);
+        gameState[0][1] = new Knight(Color.BLACK);
+        gameState[0][6] = new Knight(Color.BLACK);
+        gameState[7][1] = new Knight(Color.WHITE);
+        gameState[7][6] = new Knight(Color.WHITE);
     }
 
     private void setRooks() {
-        gameState[0][0] = new Rook(Color.black);
-        gameState[0][7] = new Rook(Color.black);
-        gameState[7][0] = new Rook(Color.white);
-        gameState[7][7] = new Rook(Color.white);
+        gameState[0][0] = new Rook(Color.BLACK);
+        gameState[0][7] = new Rook(Color.BLACK);
+        gameState[7][0] = new Rook(Color.WHITE);
+        gameState[7][7] = new Rook(Color.WHITE);
     }
 
     private void setPawns() {
         for (int i = 0; i < Board.getN(); i++) {
-            gameState[1][i] = new Pawn(Color.black);
+            gameState[1][i] = new Pawn(Color.BLACK);
         }
         for (int i = 0; i < Board.getN(); i++) {
-            gameState[6][i] = new Pawn(Color.white);
+            gameState[6][i] = new Pawn(Color.WHITE);
         }
     }
 }

@@ -1,8 +1,6 @@
 package pl.projekt.szachy;
 
-import java.awt.*;
-import java.util.ArrayList;
-
+import javafx.scene.paint.Color;
 
 public class Pawn extends Figure {
     Pawn(Color color) {

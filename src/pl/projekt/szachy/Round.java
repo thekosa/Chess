@@ -4,13 +4,13 @@ import javafx.scene.paint.Color;
 
 public class Round {
     //true - white, false - black
-    private static boolean side;
+    private boolean side = true;
 
-    public static boolean getSide() {
+    public boolean getSide() {
         return side;
     }
 
-    public static void changeSide() {
+    public void changeSide() {
         if (side) {
             side = false;
         } else {
@@ -18,7 +18,7 @@ public class Round {
         }
     }
 
-    public static Color getSideColor() {
+    public Color getSideColor() {
         if (side) {
             return Color.WHITE;
         } else {

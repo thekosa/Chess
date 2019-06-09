@@ -1,6 +1,6 @@
 package pl.projekt.szachy;
 
-import java.awt.*;
+import javafx.scene.paint.Color;
 
 public abstract class Figure {
     protected Color color;
@@ -13,7 +13,7 @@ public abstract class Figure {
     }
 
     public String getColorToString() {
-        if (color == Color.black) {
+        if (color == Color.BLACK) {
             return "black";
         } else {
             return "white";

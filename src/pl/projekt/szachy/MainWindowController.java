@@ -2,11 +2,11 @@ package pl.projekt.szachy;
 
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 import java.io.FileInputStream;
@@ -22,17 +22,22 @@ public class MainWindowController implements Initializable {
     public Button saveGameButton;
     public TextField saveGameNameText;
 
+    public Rectangle sideInfoSquare;
     public Button makeMoveButton;
     public TextField moveFromColumn;
     public TextField moveFromRow;
     public TextField moveToColumn;
     public TextField moveToRow;
+    public Label wrongMoveCoordinatesLabel;
+    public Label moveNotPermittedLabel;
 
-    public Rectangle sideInfoSquere;
 
     private final int tileSize = 100;
 
     private GameState gameState;
+    private ImageView[][] imageGameState = new ImageView[Board.getN()][Board.getN()];
+    private int[] moveCoordinates = new int[4];
+
 //todo jezeli bedzie opcja new game - przekazujemy do gamestate zeby odczytywac z odpowiedniego pliku,
 // jezeli wybierzemy co innego to z tego innego
 
@@ -41,35 +46,36 @@ public class MainWindowController implements Initializable {
 
     }
 
-    public void makeMoveAction() {
-        gameState.move(Integer.parseInt(moveFromRow.getText()),
-                Integer.parseInt(moveFromColumn.getText()),
-                Integer.parseInt(moveToRow.getText()),
-                Integer.parseInt((moveToColumn.getText())));
+    public void makeMoveAction() throws NumberFormatException {
+        if (!areCoordinatesCompatible()) {
+            wrongCoordinatesMessage();
+            return;
+        }
 
-        Round.changeSide();
+        if (!isMovePermitted()) {
+            moveNotPermittedMessage();
+            return;
+        }
+
+        gameState.move(moveCoordinates[0], moveCoordinates[1], moveCoordinates[2], moveCoordinates[3]);
+
+        wrongMoveCoordinatesLabel.setVisible(false);
+        moveNotPermittedLabel.setVisible(false);
+        GameState.getRound().changeSide();
+        clearTextFields();
+        chessBoardRefresh();
     }
 
     public void newGameButtonAction() {
         System.out.println("nowa gra");
         gameState = new GameState();
-        new Round();
-
-        for (int i = 0; i < Board.getN(); i++) {
-            for (int j = 0; j < Board.getN() && GameState.getGameState()[i][j] != null; j++) {
-
-                ImageView imageView = new ImageView();
-                imageView.setImage(getFigureImage(i, j));
-                imageView.setFitHeight(tileSize);
-                imageView.setFitWidth(tileSize);
-                imageView.setLayoutX(j * tileSize);
-                imageView.setLayoutY(i * tileSize);
-                chessBoardPane.getChildren().add(imageView);
-                System.out.println("piekne spierdolenie" + i + j);
-            }
-        }
-        sideInfoSquere.setVisible(true);
-        System.out.println("gowno ostatecnze");
+        chessBoardRefresh();
+        sideInfoSquare.setVisible(true);
+        moveToRow.setEditable(true);
+        moveToColumn.setEditable(true);
+        moveFromColumn.setEditable(true);
+        moveFromRow.setEditable(true);
+        makeMoveButton.setDisable(false);
     }
 
     public void loadGameButtonAction() {
@@ -83,20 +89,68 @@ public class MainWindowController implements Initializable {
         //spisanie stanu gry do pliku
     }
 
-    private void refreshChessBoard() {
-        for (int i = 0; i < Board.getN(); i++) {
-            for (int j = 0; j < Board.getN() && GameState.getGameState()[i][j] != null; j++) {
-//nie wiem jak to przesuwac
+    private boolean isMovePermitted() {
+        if (GameState.getGameState()[moveCoordinates[0]][moveCoordinates[1]].getColor() != GameState.getRound().getSideColor()) {
+            return false;
+        }
+        if (GameState.getGameState()[moveCoordinates[2]][moveCoordinates[3]] != null) {
+            if (GameState.getGameState()[moveCoordinates[2]][moveCoordinates[3]].getColor() == GameState.getRound().getSideColor()) {
+                return false;
             }
         }
-        sideInfoSquere.setFill(Round.getSideColor());
+        return true;
+    }
+
+    private boolean areCoordinatesCompatible() throws NumberFormatException {
+        try {
+            moveCoordinates[0] = Integer.parseInt(moveFromRow.getText());
+            moveCoordinates[1] = Integer.parseInt(moveFromColumn.getText());
+            moveCoordinates[2] = Integer.parseInt(moveToRow.getText());
+            moveCoordinates[3] = Integer.parseInt(moveToColumn.getText());
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        if (!(moveCoordinates[0] >= 0 && moveCoordinates[0] <= 7
+                || moveCoordinates[1] >= 0 && moveCoordinates[1] <= 7
+                || moveCoordinates[2] >= 0 && moveCoordinates[2] <= 7
+                || moveCoordinates[3] >= 0 && moveCoordinates[3] <= 7)) {
+            return false;
+        } else if (moveCoordinates[0] == moveCoordinates[2] && moveCoordinates[1] == moveCoordinates[3]) {
+            return false;
+        }
+
+        if (GameState.getGameState()[moveCoordinates[0]][moveCoordinates[1]] == null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private void chessBoardRefresh() {
+        chessBoardPane.getChildren().clear();
+        for (int i = 0; i < Board.getN(); i++) {
+            for (int j = 0; j < Board.getN(); j++) {
+                if (GameState.getGameState()[i][j] == null) {
+                    continue;
+                }
+                imageGameState[i][j] = new ImageView();
+                imageGameState[i][j].setImage(getFigureImage(i, j));
+                imageGameState[i][j].setFitHeight(tileSize);
+                imageGameState[i][j].setFitWidth(tileSize);
+                imageGameState[i][j].setLayoutX(j * tileSize);
+                imageGameState[i][j].setLayoutY(i * tileSize);
+                chessBoardPane.getChildren().add(imageGameState[i][j]);
+            }
+        }
+        sideInfoSquare.setFill(GameState.getRound().getSideColor());
     }
 
     private Image getFigureImage(int row, int column) {
         Figure figure = GameState.getGameState()[row][column];
         String figureColor = figure.getColorToString();
         String figureName = figure.getName();
-        //F:\Michal\sprawy szkolne\Studia\WAT\IV\JTP\projekt\RepositoryClone\Chess\Chess\src\pl\projekt\szachy\assets\black_king.png
         String string = "src/pl/projekt/szachy/assets/" + figureColor + "_" + figureName + ".png";
         try {
             FileInputStream fileInputStream = new FileInputStream(string);
@@ -105,5 +159,22 @@ public class MainWindowController implements Initializable {
             e.printStackTrace();
             return null; //trzeba to zmienic
         }
+    }
+
+    private void clearTextFields() {
+        moveToRow.setText("");
+        moveToColumn.setText("");
+        moveFromColumn.setText("");
+        moveFromRow.setText("");
+    }
+
+    private void wrongCoordinatesMessage() {
+        wrongMoveCoordinatesLabel.setVisible(true);
+        clearTextFields();
+    }
+
+    private void moveNotPermittedMessage() {
+        moveNotPermittedLabel.setVisible(true);
+        clearTextFields();
     }
 }
