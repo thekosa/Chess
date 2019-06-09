@@ -31,11 +31,9 @@ public class MainWindowController implements Initializable {
     public Label wrongMoveCoordinatesLabel;
     public Label moveNotPermittedLabel;
 
-
     private final int tileSize = 100;
 
     private GameState gameState;
-    private ImageView[][] imageGameState = new ImageView[Board.getN()][Board.getN()];
     private int[] moveCoordinates = new int[4];
 
 //todo jezeli bedzie opcja new game - przekazujemy do gamestate zeby odczytywac z odpowiedniego pliku,
@@ -70,17 +68,13 @@ public class MainWindowController implements Initializable {
         System.out.println("nowa gra");
         gameState = new GameState();
         chessBoardRefresh();
-        sideInfoSquare.setVisible(true);
-        moveToRow.setEditable(true);
-        moveToColumn.setEditable(true);
-        moveFromColumn.setEditable(true);
-        moveFromRow.setEditable(true);
-        makeMoveButton.setDisable(false);
+      activateMovementSystem();
     }
 
     public void loadGameButtonAction() {
         System.out.println("Wczytaj gre");
         //okno sie wyswietla z mozliwoscia wyboru poprzedniej gry
+        activateMovementSystem();
     }
 
     public void saveGameButtonAction() {
@@ -135,13 +129,13 @@ public class MainWindowController implements Initializable {
                 if (GameState.getGameState()[i][j] == null) {
                     continue;
                 }
-                imageGameState[i][j] = new ImageView();
-                imageGameState[i][j].setImage(getFigureImage(i, j));
-                imageGameState[i][j].setFitHeight(tileSize);
-                imageGameState[i][j].setFitWidth(tileSize);
-                imageGameState[i][j].setLayoutX(j * tileSize);
-                imageGameState[i][j].setLayoutY(i * tileSize);
-                chessBoardPane.getChildren().add(imageGameState[i][j]);
+                ImageView imageView = new ImageView();
+                imageView.setImage(getFigureImage(i, j));
+                imageView.setFitHeight(tileSize);
+                imageView.setFitWidth(tileSize);
+                imageView.setLayoutX(j * tileSize);
+                imageView.setLayoutY(i * tileSize);
+                chessBoardPane.getChildren().add(imageView);
             }
         }
         sideInfoSquare.setFill(GameState.getRound().getSideColor());
@@ -157,7 +151,7 @@ public class MainWindowController implements Initializable {
             return new Image(fileInputStream);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            return null; //trzeba to zmienic
+            return null;
         }
     }
 
@@ -176,5 +170,14 @@ public class MainWindowController implements Initializable {
     private void moveNotPermittedMessage() {
         moveNotPermittedLabel.setVisible(true);
         clearTextFields();
+    }
+
+    private void activateMovementSystem(){
+        sideInfoSquare.setVisible(true);
+        moveToRow.setEditable(true);
+        moveToColumn.setEditable(true);
+        moveFromColumn.setEditable(true);
+        moveFromRow.setEditable(true);
+        makeMoveButton.setDisable(false);
     }
 }
