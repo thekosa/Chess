@@ -1,16 +1,14 @@
 package pl.projekt.szachy;
 
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.net.URL;
 import java.util.*;
 
@@ -18,9 +16,14 @@ public class MainWindowController implements Initializable {
     public Pane chessBoardPane;
 
     public Button newGameButton;
+
     public Button loadGameButton;
+    public MenuButton loadGameMenuButton;
+
     public Button saveGameButton;
     public TextField saveGameNameText;
+    public Label wrongSaveGameNameLabel;
+    public Label successfullySavedGameLabel;
 
     public Rectangle sideInfoSquare;
     public Button makeMoveButton;
@@ -36,12 +39,9 @@ public class MainWindowController implements Initializable {
     private GameState gameState;
     private int[] moveCoordinates = new int[4];
 
-//todo jezeli bedzie opcja new game - przekazujemy do gamestate zeby odczytywac z odpowiedniego pliku,
-// jezeli wybierzemy co innego to z tego innego
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
+        loadMenuButton();
     }
 
     public void makeMoveAction() throws NumberFormatException {
@@ -62,37 +62,51 @@ public class MainWindowController implements Initializable {
         GameState.getRound().changeSide();
         clearTextFields();
         chessBoardRefresh();
+        successfullySavedGameLabel.setVisible(false);
     }
 
     public void newGameButtonAction() {
         System.out.println("nowa gra");
         gameState = new GameState();
         chessBoardRefresh();
-      activateMovementSystem();
+        activateSystems();
     }
 
     public void loadGameButtonAction() {
         System.out.println("Wczytaj gre");
-        //okno sie wyswietla z mozliwoscia wyboru poprzedniej gry
-        activateMovementSystem();
+//tutaj powinien wziąć opcje z listy menuButton
+        String savedGameFile = "super-gra";
+        gameState = new GameState(savedGameFile);
+        chessBoardRefresh();
+        activateSystems();
     }
 
     public void saveGameButtonAction() {
         System.out.println("Zapisz gre");
-        String nameOfSavedGame = saveGameNameText.getText();
-        //spisanie stanu gry do pliku
+        String nameOfSavedGame;
+        if (saveGameNameText.getText().compareTo("") != 0) {
+            nameOfSavedGame = saveGameNameText.getText();
+        } else {
+            wrongSavedGameNameMessage();
+            return;
+        }
+        gameState.saveGame(nameOfSavedGame);
+        successfullySavedGameMessage();
     }
 
     private boolean isMovePermitted() {
-        if (GameState.getGameState()[moveCoordinates[0]][moveCoordinates[1]].getColor() != GameState.getRound().getSideColor()) {
+        if (GameState.getGameState()[moveCoordinates[0]][moveCoordinates[1]].getJavaFXColor()
+                != GameState.getRound().getSideColor()) {
             return false;
         }
         if (GameState.getGameState()[moveCoordinates[2]][moveCoordinates[3]] != null) {
-            if (GameState.getGameState()[moveCoordinates[2]][moveCoordinates[3]].getColor() == GameState.getRound().getSideColor()) {
+            if (GameState.getGameState()[moveCoordinates[2]][moveCoordinates[3]].getJavaFXColor()
+                    == GameState.getRound().getSideColor()) {
                 return false;
             }
         }
-        return true;
+        return GameState.getGameState()[moveCoordinates[0]][moveCoordinates[1]]
+                .getPossibleMoves()[moveCoordinates[2]][moveCoordinates[3]];
     }
 
     private boolean areCoordinatesCompatible() throws NumberFormatException {
@@ -155,11 +169,38 @@ public class MainWindowController implements Initializable {
         }
     }
 
+    private void loadMenuButton() {
+        File directory = new File("Saves/");
+        try {
+            File[] children = directory.listFiles();
+            for (File child : children) {
+                if (child.isFile()) {
+                    String string = child.toString();
+                    if (!string.contains("_r")) {
+                        string = string.substring(6, string.length() - 7);
+                        loadGameMenuButton.getItems().add(new MenuItem(string));
+                    }
+                }
+            }
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void clearTextFields() {
         moveToRow.setText("");
         moveToColumn.setText("");
         moveFromColumn.setText("");
         moveFromRow.setText("");
+    }
+
+    private void successfullySavedGameMessage() {
+        successfullySavedGameLabel.setVisible(true);
+    }
+
+    private void wrongSavedGameNameMessage() {
+        wrongSaveGameNameLabel.setVisible(true);
+        wrongSaveGameNameLabel.setText("");
     }
 
     private void wrongCoordinatesMessage() {
@@ -172,12 +213,16 @@ public class MainWindowController implements Initializable {
         clearTextFields();
     }
 
-    private void activateMovementSystem(){
+    private void activateSystems() {
         sideInfoSquare.setVisible(true);
         moveToRow.setEditable(true);
         moveToColumn.setEditable(true);
         moveFromColumn.setEditable(true);
         moveFromRow.setEditable(true);
         makeMoveButton.setDisable(false);
+
+        saveGameNameText.setDisable(false);
+        saveGameButton.setDisable(false);
+        successfullySavedGameLabel.setVisible(false);
     }
 }
