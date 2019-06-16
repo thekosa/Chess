@@ -5,32 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b45f8dd1-7b6c-41ed-bfc0-d0be9e85cfe8" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Projekt_Szachy/pl/projekt/szachy/Bishop.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Projekt_Szachy/pl/projekt/szachy/Bishop.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Projekt_Szachy/pl/projekt/szachy/Figure.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Projekt_Szachy/pl/projekt/szachy/Figure.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Projekt_Szachy/pl/projekt/szachy/GameState.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Projekt_Szachy/pl/projekt/szachy/GameState.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Projekt_Szachy/pl/projekt/szachy/King.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Projekt_Szachy/pl/projekt/szachy/King.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Projekt_Szachy/pl/projekt/szachy/Knight.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Projekt_Szachy/pl/projekt/szachy/Knight.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Projekt_Szachy/pl/projekt/szachy/MainWindowController.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Projekt_Szachy/pl/projekt/szachy/MainWindowController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Projekt_Szachy/pl/projekt/szachy/Pawn.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Projekt_Szachy/pl/projekt/szachy/Pawn.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Projekt_Szachy/pl/projekt/szachy/Queen.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Projekt_Szachy/pl/projekt/szachy/Queen.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Projekt_Szachy/pl/projekt/szachy/Rook.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Projekt_Szachy/pl/projekt/szachy/Rook.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Projekt_Szachy/pl/projekt/szachy/Round.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Projekt_Szachy/pl/projekt/szachy/Round.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Projekt_Szachy/pl/projekt/szachy/mainWindow.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Projekt_Szachy/pl/projekt/szachy/mainWindow.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pl/projekt/szachy/Bishop.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/pl/projekt/szachy/Bishop.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pl/projekt/szachy/Board.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/pl/projekt/szachy/Board.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/pl/projekt/szachy/Figure.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/pl/projekt/szachy/Figure.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pl/projekt/szachy/GameState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/pl/projekt/szachy/GameState.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pl/projekt/szachy/King.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/pl/projekt/szachy/King.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pl/projekt/szachy/Knight.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/pl/projekt/szachy/Knight.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pl/projekt/szachy/MainWindowController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/pl/projekt/szachy/MainWindowController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pl/projekt/szachy/Pawn.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/pl/projekt/szachy/Pawn.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pl/projekt/szachy/Queen.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/pl/projekt/szachy/Queen.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pl/projekt/szachy/Rook.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/pl/projekt/szachy/Rook.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pl/projekt/szachy/Round.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/pl/projekt/szachy/Round.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pl/projekt/szachy/Tile.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pl/projekt/szachy/mainWindow.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/pl/projekt/szachy/mainWindow.fxml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -47,8 +23,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/GameState.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="154">
-              <caret line="118" column="43" selection-start-line="118" selection-start-column="43" selection-end-line="118" selection-end-column="43" />
+            <state relative-caret-position="946">
+              <caret line="168" selection-start-line="168" selection-end-line="168" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="method#GameState#1;class#GameState#0" />
@@ -70,7 +46,7 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/Round.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="176">
@@ -82,7 +58,7 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/Queen.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="88">
@@ -94,7 +70,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/MainWindow.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="242">
+            <state relative-caret-position="154">
               <caret line="11" column="33" selection-start-line="11" selection-start-column="33" selection-end-line="11" selection-end-column="33" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -106,12 +82,12 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/MainWindowController.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="244">
+            <state relative-caret-position="772">
               <caret line="76" column="47" selection-start-line="76" selection-start-column="47" selection-end-line="76" selection-end-column="47" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#1193#1194#0" expanded="true" />
-                <element signature="e#1217#1218#0" expanded="true" />
+                <element signature="e#1225#1226#0" expanded="true" />
                 <element signature="method#makeMoveAction#0;class#MainWindowController#0" />
                 <element signature="method#saveGameButtonAction#0;class#MainWindowController#0" />
                 <element signature="method#isMovePermitted#0;class#MainWindowController#0" />
@@ -120,8 +96,6 @@
                 <element signature="method#getFigureImage#0;class#MainWindowController#0" />
                 <element signature="method#loadMenuButton#0;class#MainWindowController#0" />
                 <element signature="method#clearTextFields#0;class#MainWindowController#0" />
-                <element signature="e#6355#6415#1" />
-                <element signature="e#6828#6829#0" expanded="true" />
                 <element signature="method#wrongSavedGameNameMessage#0;class#MainWindowController#0" />
                 <element signature="method#wrongCoordinatesMessage#0;class#MainWindowController#0" />
                 <element signature="method#moveNotPermittedMessage#0;class#MainWindowController#0" />
@@ -135,7 +109,7 @@
         <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/mainWindow.fxml">
           <provider editor-type-id="JavaFX-Scene-Builder" />
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="769">
+            <state relative-caret-position="1540">
               <caret line="70" column="102" selection-start-line="70" selection-start-column="102" selection-end-line="70" selection-end-column="102" />
             </state>
           </provider>
@@ -144,15 +118,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/Figure.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="156">
-              <caret line="8" column="17" selection-start-line="8" selection-start-column="17" selection-end-line="8" selection-end-column="17" />
+            <state relative-caret-position="110">
+              <caret line="5" column="39" selection-start-line="5" selection-start-column="39" selection-end-line="5" selection-end-column="39" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="method#getColor#0;class#Figure#0" />
+                <element signature="e#876#877#0" expanded="true" />
                 <element signature="e#904#905#0" expanded="true" />
                 <element signature="method#getColorToString#0;class#Figure#0" />
+                <element signature="e#1113#1114#0" expanded="true" />
                 <element signature="e#1144#1145#0" expanded="true" />
                 <element signature="method#resetPossibleMoves#0;class#Figure#0" />
+                <element signature="e#1429#1430#0" expanded="true" />
                 <element signature="e#1495#1496#0" expanded="true" />
               </folding>
             </state>
@@ -162,12 +138,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/King.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="132">
+            <state relative-caret-position="110">
               <caret line="6" column="29" selection-start-line="6" selection-start-column="29" selection-end-line="6" selection-end-column="29" />
-              <folding>
-                <element signature="e#143#144#0" expanded="true" />
-                <element signature="e#179#180#0" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -177,10 +149,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="88">
               <caret line="4" column="13" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
-              <folding>
-                <element signature="e#143#144#0" expanded="true" />
-                <element signature="e#179#180#0" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -188,12 +156,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/Pawn.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="924">
-              <caret line="42" column="17" lean-forward="true" selection-start-line="42" selection-start-column="17" selection-end-line="42" selection-end-column="17" />
-              <folding>
-                <element signature="e#143#144#0" expanded="true" />
-                <element signature="e#179#180#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="880">
+              <caret line="42" column="17" selection-start-line="42" selection-start-column="17" selection-end-line="42" selection-end-column="17" />
             </state>
           </provider>
         </entry>
@@ -253,8 +217,8 @@
         <option value="$PROJECT_DIR$/src/pl/projekt/szachy/mainWindow.fxml" />
         <option value="$PROJECT_DIR$/src/pl/projekt/szachy/MainWindowController.java" />
         <option value="$PROJECT_DIR$/src/pl/projekt/szachy/Round.java" />
-        <option value="$PROJECT_DIR$/src/pl/projekt/szachy/Figure.java" />
         <option value="$PROJECT_DIR$/src/pl/projekt/szachy/Board.java" />
+        <option value="$PROJECT_DIR$/src/pl/projekt/szachy/Figure.java" />
       </list>
     </option>
   </component>
@@ -275,7 +239,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -313,6 +276,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="PackagesPane" />
       <pane id="Scope" />
     </panes>
   </component>
@@ -481,11 +445,12 @@
       <workItem from="1560163126108" duration="12965000" />
       <workItem from="1560182156267" duration="8982000" />
       <workItem from="1560192057683" duration="10400000" />
+      <workItem from="1560202639716" duration="3236000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="211780000" />
+    <option name="totallyTimeSpent" value="215016000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -499,7 +464,7 @@
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1216" extended-state="6" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.22441365" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.22654584" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -553,7 +518,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://C:/Program Files/Java/jdk1.8.0_172/javafx-src.zip!/javafx/scene/Parent.java" />
     <entry file="jar://C:/Program Files/Java/jdk1.8.0_172/javafx-src.zip!/javafx/beans/property/StringProperty.java" />
     <entry file="jar://C:/Program Files/Java/jdk1.8.0_172/javafx-src.zip!/javafx/scene/control/Button.java" />
     <entry file="jar://C:/Program Files/Java/jdk1.8.0_172/javafx-src.zip!/javafx/scene/layout/Region.java" />
@@ -680,19 +644,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/Tile.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="440">
-          <caret line="20" column="18" lean-forward="true" selection-start-line="20" selection-start-column="18" selection-end-line="20" selection-end-column="18" />
-          <folding>
-            <element signature="e#297#298#0" expanded="true" />
-            <element signature="e#339#340#0" expanded="true" />
-            <element signature="e#374#375#0" expanded="true" />
-            <element signature="e#406#407#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/Tile.java" />
     <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/Board.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="154">
@@ -706,7 +658,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/MainWindow.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="242">
+        <state relative-caret-position="154">
           <caret line="11" column="33" selection-start-line="11" selection-start-column="33" selection-end-line="11" selection-end-column="33" />
           <folding>
             <element signature="imports" expanded="true" />
@@ -714,10 +666,97 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/mainWindow.fxml">
+      <provider editor-type-id="JavaFX-Scene-Builder" />
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1540">
+          <caret line="70" column="102" selection-start-line="70" selection-start-column="102" selection-end-line="70" selection-end-column="102" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/Rook.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="88">
+          <caret line="4" column="13" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/Pawn.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="880">
+          <caret line="42" column="17" selection-start-line="42" selection-start-column="17" selection-end-line="42" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../.__Warcaby przyklad/warcaby przyklad.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-3366">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/Queen.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="88">
+          <caret line="4" column="13" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/King.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="110">
+          <caret line="6" column="29" selection-start-line="6" selection-start-column="29" selection-end-line="6" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/Figure.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="110">
+          <caret line="5" column="39" selection-start-line="5" selection-start-column="39" selection-end-line="5" selection-end-column="39" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#876#877#0" expanded="true" />
+            <element signature="e#904#905#0" expanded="true" />
+            <element signature="method#getColorToString#0;class#Figure#0" />
+            <element signature="e#1113#1114#0" expanded="true" />
+            <element signature="e#1144#1145#0" expanded="true" />
+            <element signature="method#resetPossibleMoves#0;class#Figure#0" />
+            <element signature="e#1429#1430#0" expanded="true" />
+            <element signature="e#1495#1496#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/MainWindowController.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="772">
+          <caret line="76" column="47" selection-start-line="76" selection-start-column="47" selection-end-line="76" selection-end-column="47" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1193#1194#0" expanded="true" />
+            <element signature="e#1225#1226#0" expanded="true" />
+            <element signature="method#makeMoveAction#0;class#MainWindowController#0" />
+            <element signature="method#saveGameButtonAction#0;class#MainWindowController#0" />
+            <element signature="method#isMovePermitted#0;class#MainWindowController#0" />
+            <element signature="method#areCoordinatesCompatible#0;class#MainWindowController#0" />
+            <element signature="method#chessBoardRefresh#0;class#MainWindowController#0" />
+            <element signature="method#getFigureImage#0;class#MainWindowController#0" />
+            <element signature="method#loadMenuButton#0;class#MainWindowController#0" />
+            <element signature="method#clearTextFields#0;class#MainWindowController#0" />
+            <element signature="method#wrongSavedGameNameMessage#0;class#MainWindowController#0" />
+            <element signature="method#wrongCoordinatesMessage#0;class#MainWindowController#0" />
+            <element signature="method#moveNotPermittedMessage#0;class#MainWindowController#0" />
+            <element signature="method#activateSystems#0;class#MainWindowController#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/GameState.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="154">
-          <caret line="118" column="43" selection-start-line="118" selection-start-column="43" selection-end-line="118" selection-end-column="43" />
+        <state relative-caret-position="946">
+          <caret line="168" selection-start-line="168" selection-end-line="168" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="method#GameState#1;class#GameState#0" />
@@ -738,89 +777,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/MainWindowController.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="244">
-          <caret line="76" column="47" selection-start-line="76" selection-start-column="47" selection-end-line="76" selection-end-column="47" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#1193#1194#0" expanded="true" />
-            <element signature="e#1217#1218#0" expanded="true" />
-            <element signature="method#makeMoveAction#0;class#MainWindowController#0" />
-            <element signature="method#saveGameButtonAction#0;class#MainWindowController#0" />
-            <element signature="method#isMovePermitted#0;class#MainWindowController#0" />
-            <element signature="method#areCoordinatesCompatible#0;class#MainWindowController#0" />
-            <element signature="method#chessBoardRefresh#0;class#MainWindowController#0" />
-            <element signature="method#getFigureImage#0;class#MainWindowController#0" />
-            <element signature="method#loadMenuButton#0;class#MainWindowController#0" />
-            <element signature="method#clearTextFields#0;class#MainWindowController#0" />
-            <element signature="e#6355#6415#1" />
-            <element signature="e#6828#6829#0" expanded="true" />
-            <element signature="method#wrongSavedGameNameMessage#0;class#MainWindowController#0" />
-            <element signature="method#wrongCoordinatesMessage#0;class#MainWindowController#0" />
-            <element signature="method#moveNotPermittedMessage#0;class#MainWindowController#0" />
-            <element signature="method#activateSystems#0;class#MainWindowController#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/mainWindow.fxml">
-      <provider editor-type-id="JavaFX-Scene-Builder" />
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="769">
-          <caret line="70" column="102" selection-start-line="70" selection-start-column="102" selection-end-line="70" selection-end-column="102" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/Figure.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="156">
-          <caret line="8" column="17" selection-start-line="8" selection-start-column="17" selection-end-line="8" selection-end-column="17" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="method#getColor#0;class#Figure#0" />
-            <element signature="e#904#905#0" expanded="true" />
-            <element signature="method#getColorToString#0;class#Figure#0" />
-            <element signature="e#1144#1145#0" expanded="true" />
-            <element signature="method#resetPossibleMoves#0;class#Figure#0" />
-            <element signature="e#1495#1496#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/King.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="132">
-          <caret line="6" column="29" selection-start-line="6" selection-start-column="29" selection-end-line="6" selection-end-column="29" />
-          <folding>
-            <element signature="e#143#144#0" expanded="true" />
-            <element signature="e#179#180#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/Rook.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="88">
-          <caret line="4" column="13" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
-          <folding>
-            <element signature="e#143#144#0" expanded="true" />
-            <element signature="e#179#180#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/Pawn.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="924">
-          <caret line="42" column="17" lean-forward="true" selection-start-line="42" selection-start-column="17" selection-end-line="42" selection-end-column="17" />
-          <folding>
-            <element signature="e#143#144#0" expanded="true" />
-            <element signature="e#179#180#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/Round.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="176">
@@ -828,13 +784,6 @@
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pl/projekt/szachy/Queen.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="88">
-          <caret line="4" column="13" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
         </state>
       </provider>
     </entry>

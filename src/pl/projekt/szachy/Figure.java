@@ -1,6 +1,5 @@
 package pl.projekt.szachy;
 
-
 import java.awt.*;
 import java.io.Serializable;
 
