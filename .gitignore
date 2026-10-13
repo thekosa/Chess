@@ -1,0 +1,11 @@
+# Build outputs and local tooling
+**/target/
+out/
+.tools/
+.m2/
+# IDE files
+.idea/
+*.iml
+# OS files
+.DS_Store
+Thumbs.db
