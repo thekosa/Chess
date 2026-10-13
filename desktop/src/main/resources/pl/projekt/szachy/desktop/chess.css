@@ -1,0 +1,10 @@
+.game-window {
+    -fx-padding: 28;
+    -fx-background-color: #f3f0e8;
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 16;
+}
+.dark-tile { -fx-background-color: #789070; }
+.light-tile { -fx-background-color: #eee6d2; }
+.coordinate { -fx-text-fill: #555b50; -fx-font-size: 14; }
+.title { -fx-font-size: 28; -fx-font-weight: bold; }
