@@ -4,7 +4,27 @@
     -fx-font-family: "Segoe UI";
     -fx-font-size: 16;
 }
+.board-square {
+    -fx-padding: 0;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-border-width: 0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-cursor: hand;
+}
 .dark-tile { -fx-background-color: #789070; }
 .light-tile { -fx-background-color: #eee6d2; }
+.dark-tile:hover { -fx-background-color: #8ba17f; }
+.light-tile:hover { -fx-background-color: #f3ecd9; }
+.last-move { -fx-border-color: #48684b; -fx-border-width: 2; }
+.capture-move { -fx-border-color: #b77917; -fx-border-width: 4; }
+.selected-square { -fx-border-color: #e7b83e; -fx-border-width: 4; }
+.checked-king { -fx-border-color: #bf3838; -fx-border-width: 4; }
 .coordinate { -fx-text-fill: #555b50; -fx-font-size: 14; }
 .title { -fx-font-size: 28; -fx-font-weight: bold; }
+.turn-label { -fx-font-size: 18; -fx-font-weight: bold; }
+.message-label { -fx-text-fill: #42623d; -fx-font-size: 14; }
+.captured-label { -fx-font-size: 14; }
+.history-title { -fx-font-weight: bold; }
+.list-view { -fx-font-size: 14; -fx-background-color: #faf8f1; }
