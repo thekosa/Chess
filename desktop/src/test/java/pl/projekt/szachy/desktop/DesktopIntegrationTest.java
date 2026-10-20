@@ -20,11 +20,15 @@ import pl.projekt.szachy.core.model.Piece;
 import pl.projekt.szachy.core.model.PieceType;
 import pl.projekt.szachy.core.model.Side;
 import pl.projekt.szachy.core.model.Square;
+import pl.projekt.szachy.core.model.Move;
+import pl.projekt.szachy.core.model.MoveError;
+import pl.projekt.szachy.core.model.MoveResult;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
@@ -119,10 +123,21 @@ class DesktopIntegrationTest {
     private static final class StubGame implements GameApi {
         private GameState state = new LocalGame().getState();
         private int resets;
+        private List<Move> advertisedMoves = List.of();
 
         @Override
         public GameState getState() {
             return state;
+        }
+
+        @Override
+        public List<Move> getLegalMoves(Square from) {
+            return advertisedMoves;
+        }
+
+        @Override
+        public MoveResult makeMove(Move move) {
+            return new MoveResult(MoveError.ILLEGAL_MOVE, state);
         }
 
         @Override
