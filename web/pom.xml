@@ -11,6 +11,9 @@
     <artifactId>chess-web</artifactId>
     <dependencies>
         <dependency>
+            <groupId>pl.projekt.szachy</groupId><artifactId>chess-computer</artifactId><version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>pl.projekt.szachy</groupId>
             <artifactId>chess-core</artifactId>
             <version>${project.version}</version>

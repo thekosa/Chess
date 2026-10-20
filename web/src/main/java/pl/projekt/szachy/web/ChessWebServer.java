@@ -4,6 +4,7 @@ import com.google.gson.*;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import pl.projekt.szachy.core.model.*;
+import pl.projekt.szachy.computer.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -78,9 +79,9 @@ public final class ChessWebServer implements AutoCloseable {
         }
         if (path.equals("/api/games")) {
             requireMethod(method, "POST");
-            body(exchange);
-            GameSessions.Session session = sessions.create();
-            synchronized (session) {
+            GameOptions options = options(body(exchange), GameOptions.local());
+            GameSessions.Session session = sessions.create(options);
+            synchronized (session.game) {
                 json(exchange, 201, session.snapshot());
             }
             return;
@@ -91,31 +92,35 @@ public final class ChessWebServer implements AutoCloseable {
             throw new ApiException(404, "NOT_FOUND", "Nie znaleziono endpointu.");
         }
         GameSessions.Session session = sessions.get(parts[3]);
-        synchronized (session) {
+        synchronized (session.game) {
             if (parts.length == 4) {
                 requireMethod(method, "GET");
                 json(exchange, 200, session.snapshot());
             } else if (parts[4].equals("moves") && method.equals("GET")) {
                 String from = query(exchange.getRequestURI(), "from");
                 JsonObject response = new JsonObject();
-                response.addProperty("revision", session.revision);
+                response.addProperty("revision", session.game.revision());
                 JsonArray moves = new JsonArray();
                 session.game.getLegalMoves(square(from)).forEach(move -> moves.add(GameJson.move(move)));
                 response.add("moves", moves);
                 json(exchange, 200, response);
-            } else if (parts[4].equals("moves") || parts[4].equals("reset")) {
+            } else if (parts[4].equals("moves") || parts[4].equals("reset") || parts[4].equals("retry")) {
                 requireMethod(method, "POST");
                 JsonObject request = body(exchange);
                 String revision = required(request, "revision", false);
-                if (!revision.matches("0|[1-9][0-9]{0,15}") || Long.parseLong(revision) != session.revision) {
+                if (!revision.matches("0|[1-9][0-9]{0,15}") || Long.parseLong(revision) != session.game.revision()) {
                     JsonObject response = errorJson("STALE_STATE", "Plansza zmieniła się. Pobrano aktualną pozycję.");
                     response.add("state", session.snapshot());
                     json(exchange, 409, response);
                     return;
                 }
                 if (parts[4].equals("reset")) {
-                    session.game.newGame();
-                    session.revision++;
+                    session.game.configure(options(request, session.game.snapshot().options()));
+                    json(exchange, 200, session.snapshot());
+                    return;
+                }
+                if (parts[4].equals("retry")) {
+                    session.game.retryComputer();
                     json(exchange, 200, session.snapshot());
                     return;
                 }
@@ -132,7 +137,6 @@ public final class ChessWebServer implements AutoCloseable {
                     json(exchange, 422, response);
                     return;
                 }
-                session.revision++;
                 json(exchange, 200, session.snapshot());
             } else {
                 throw new ApiException(404, "NOT_FOUND", "Nie znaleziono endpointu.");
@@ -171,6 +175,12 @@ public final class ChessWebServer implements AutoCloseable {
                 exchange.getResponseBody().write(bytes);
             }
         }
+    }
+
+    private static GameOptions options(JsonObject request, GameOptions fallback) {
+        return new GameOptions(request.has("opponent") ? Opponent.valueOf(required(request, "opponent", true)) : fallback.opponent(),
+                request.has("difficulty") ? Difficulty.valueOf(required(request, "difficulty", true)) : fallback.difficulty(),
+                request.has("humanSide") ? Side.valueOf(required(request, "humanSide", true)) : fallback.humanSide());
     }
 
     private static JsonObject body(HttpExchange exchange) throws IOException {
@@ -265,6 +275,7 @@ public final class ChessWebServer implements AutoCloseable {
     public void close() {
         if (closed.compareAndSet(false, true)) {
             server.stop(0);
+            sessions.close();
             executor.shutdownNow();
         }
     }
