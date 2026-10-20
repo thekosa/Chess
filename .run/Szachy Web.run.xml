@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Szachy Web" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="pl.projekt.szachy.desktop.Launcher" />
+    <module name="chess-desktop" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="PROGRAM_PARAMETERS" value="--web" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

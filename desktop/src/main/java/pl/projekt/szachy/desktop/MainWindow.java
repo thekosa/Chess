@@ -6,13 +6,53 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import pl.projekt.szachy.core.LocalGame;
 import pl.projekt.szachy.core.api.GameApi;
+import pl.projekt.szachy.web.ChessWebServer;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Objects;
 
 /** Composition root: the frontend receives the engine through its public API. */
 public class MainWindow extends Application {
+    private ChessWebServer webServer;
+
     @Override
     public void start(Stage stage) throws Exception {
+        ModeSelectionView.show(stage, () -> {
+            try {
+                openDesktop(stage);
+            } catch (Exception exception) {
+                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                        javafx.scene.control.Alert.AlertType.ERROR,
+                        "Nie udało się otworzyć planszy: " + exception.getMessage());
+                alert.initOwner(stage);
+                alert.showAndWait();
+            }
+        }, this::openWeb, getParameters().getRaw().contains("--console"),
+                getParameters().getRaw().contains("--web"));
+    }
+
+    private String openWeb() {
+        try {
+            if (webServer == null) {
+                webServer = ChessWebServer.start(0);
+            }
+            String address = webServer.address().toString();
+            getHostServices().showDocument(address);
+            return address;
+        } catch (IOException exception) {
+            throw new UncheckedIOException(exception);
+        }
+    }
+
+    @Override
+    public void stop() {
+        if (webServer != null) {
+            webServer.close();
+        }
+    }
+
+    private void openDesktop(Stage stage) throws Exception {
         GameApi game = new LocalGame();
         FXMLLoader loader = new FXMLLoader(
                 Objects.requireNonNull(getClass().getResource("mainWindow.fxml")));

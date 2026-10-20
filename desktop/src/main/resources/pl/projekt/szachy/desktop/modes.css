@@ -1,0 +1,28 @@
+.mode-window {
+    -fx-background-color: #f3f0e8;
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 14;
+}
+.mode-window .label { -fx-text-fill: #253b30; }
+.mode-eyebrow { -fx-font-size: 11; -fx-font-weight: bold; }
+.mode-title { -fx-font-size: 34; -fx-font-weight: bold; }
+.mode-card {
+    -fx-padding: 20;
+    -fx-background-color: #fffdf7;
+    -fx-background-radius: 12;
+    -fx-border-color: #d6ddcf;
+    -fx-border-radius: 12;
+}
+.mode-card .mode-caption { -fx-font-size: 11; -fx-text-fill: #607455; -fx-font-weight: bold; }
+.mode-card-title { -fx-font-size: 21; -fx-font-weight: bold; }
+.mode-card .button {
+    -fx-background-color: #3f624b;
+    -fx-text-fill: #fffdf7;
+    -fx-padding: 10 16;
+    -fx-background-radius: 6;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+.mode-card .button:hover { -fx-background-color: #50785c; }
+.mode-card .button:focused { -fx-border-color: #d4ab50; -fx-border-width: 2; -fx-border-radius: 6; }
+.mode-feedback { -fx-font-size: 12; }

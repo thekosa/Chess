@@ -16,6 +16,16 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>pl.projekt.szachy</groupId>
+            <artifactId>chess-console</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>pl.projekt.szachy</groupId>
+            <artifactId>chess-web</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
