@@ -1,5 +1,6 @@
 module pl.projekt.szachy.desktop {
     requires pl.projekt.szachy.core;
+    requires pl.projekt.szachy.computer;
     requires pl.projekt.szachy.console;
     requires pl.projekt.szachy.web;
     requires javafx.controls;

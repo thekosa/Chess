@@ -1,6 +1,7 @@
 package pl.projekt.szachy.desktop;
 
 import pl.projekt.szachy.console.ConsoleMain;
+import pl.projekt.szachy.computer.GameOptions;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -12,35 +13,38 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /** Starts a real interactive terminal, including when the chooser runs from an IDE. */
 final class ConsoleLauncher {
     private ConsoleLauncher() { }
 
-    static void launch() throws Exception {
+    static void launch(GameOptions options) throws Exception {
         String os = System.getProperty("os.name").toLowerCase(Locale.ROOT);
         String java = Path.of(System.getProperty("java.home"), "bin",
                 os.contains("win") ? "java.exe" : "java").toString();
         String classpath = ConsoleMain.runtimeClasspath();
         if (os.contains("win")) {
-            launchWindows(java, classpath);
+            launchWindows(java, classpath, options);
         } else if (os.contains("mac")) {
             String command = shellQuote(java) + " -cp " + shellQuote(classpath)
-                    + " pl.projekt.szachy.console.ConsoleMain --ansi";
+                    + " pl.projekt.szachy.console.ConsoleMain --ansi " + String.join(" ", options.arguments());
             String script = "tell application \"Terminal\"\nactivate\ndo script \""
                     + command.replace("\\", "\\\\").replace("\"", "\\\"") + "\"\nend tell";
             launchAndWait(List.of("osascript", "-e", script));
         } else {
-            launchLinux(java, classpath);
+            launchLinux(java, classpath, options);
         }
     }
 
-    private static void launchWindows(String java, String classpath) throws Exception {
+    private static void launchWindows(String java, String classpath, GameOptions options) throws Exception {
         String bootstrap;
         try (var input = Objects.requireNonNull(ConsoleLauncher.class.getResourceAsStream("console-window.ps1"))) {
             bootstrap = new String(input.readAllBytes(), StandardCharsets.UTF_8)
                     .replace("@JAVA@", powershellQuote(java))
-                    .replace("@CLASSPATH@", powershellQuote(classpath));
+                    .replace("@CLASSPATH@", powershellQuote(classpath))
+                    .replace("@OPTIONS@", options.arguments().stream().map(ConsoleLauncher::powershellQuote)
+                            .collect(Collectors.joining(" ")));
         }
         String encoded = encode(bootstrap);
         String launch = "Start-Process -FilePath 'powershell.exe' -WindowStyle Normal "
@@ -50,9 +54,10 @@ final class ConsoleLauncher {
                 "-EncodedCommand", encode(launch)));
     }
 
-    private static void launchLinux(String java, String classpath) throws IOException {
-        List<String> game = List.of(java, "-cp", classpath, "pl.projekt.szachy.console.ConsoleMain",
-                "--ansi");
+    private static void launchLinux(String java, String classpath, GameOptions options) throws IOException {
+        List<String> game = new ArrayList<>(List.of(java, "-cp", classpath, "pl.projekt.szachy.console.ConsoleMain",
+                "--ansi"));
+        game.addAll(options.arguments());
         for (List<String> terminal : List.of(
                 List.of("xterm", "-geometry", "120x66", "-T", "Szachy ASCII", "-e"),
                 List.of("gnome-terminal", "--geometry=120x66", "--"))) {

@@ -1,6 +1,11 @@
 package pl.projekt.szachy.desktop;
 
 import javafx.fxml.FXML;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
+import javafx.scene.control.Button;
+import pl.projekt.szachy.computer.ComputerGame;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -14,11 +19,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public final class MainWindowController {
+public final class MainWindowController implements AutoCloseable {
     private final GameApi game;
     private final BoardView boardView;
     private Square selected;
     private List<Move> legalMoves = List.of();
+    private GameState displayedState;
+    private Timeline computerUpdates;
 
     @FXML
     private StackPane boardContainer;
@@ -30,6 +37,7 @@ public final class MainWindowController {
     private Label capturedLabel;
     @FXML
     private ListView<String> historyList;
+    @FXML private Button retryButton;
 
     public MainWindowController(GameApi game) {
         this.game = Objects.requireNonNull(game);
@@ -40,10 +48,26 @@ public final class MainWindowController {
     private void initialize() {
         boardContainer.getChildren().setAll(boardView);
         render(game.getState());
+        if (game instanceof ComputerGame) {
+            computerUpdates = new Timeline(new KeyFrame(Duration.millis(100), event -> updateComputer()));
+            computerUpdates.setCycleCount(Timeline.INDEFINITE);
+            computerUpdates.play();
+            updateComputer();
+        }
     }
 
     @FXML
     private void newGame() {
+        if (game instanceof ComputerGame computer) {
+            GameOptionsView.choose(boardContainer.getScene().getWindow(), computer.snapshot().options())
+                    .ifPresent(options -> {
+                        clearSelection();
+                        render(computer.configure(options));
+                        messageLabel.setText("Nowa partia. Zaczynają białe.");
+                        updateComputer();
+                    });
+            return;
+        }
         clearSelection();
         render(game.newGame());
         messageLabel.setText("Nowa partia. Zaczynają białe.");
@@ -54,6 +78,10 @@ public final class MainWindowController {
             return;
         }
         GameState state = game.getState();
+        if (game instanceof ComputerGame computer && computer.isComputerTurn()) {
+            updateComputer();
+            return;
+        }
         if (state.status().isFinished()) {
             messageLabel.setText("Partia zakończona. Możesz rozpocząć nową grę.");
             return;
@@ -121,6 +149,7 @@ public final class MainWindowController {
     }
 
     private void render(GameState state) {
+        displayedState = state;
         boardView.render(state, selected, legalMoves.stream().map(Move::to).collect(Collectors.toSet()));
         turnLabel.setText(switch (state.status()) {
             case ACTIVE -> "Ruch: " + sideName(state.sideToMove());
@@ -144,6 +173,37 @@ public final class MainWindowController {
         capturedLabel.setText("Zbite białe: " + captures(state, Side.WHITE)
                 + "\nZbite czarne: " + captures(state, Side.BLACK));
     }
+
+    private void updateComputer() {
+        if (!(game instanceof ComputerGame computer) || boardView.isAnimating()) return;
+        var snapshot = computer.snapshot();
+        GameState next = snapshot.state();
+        if (next != displayedState) {
+            GameState before = displayedState;
+            clearSelection();
+            if (next.moveHistory().size() == before.moveHistory().size() + 1) {
+                Move move = next.moveHistory().getLast();
+                messageLabel.setText("Stockfish: " + move.from() + " → " + move.to() + ".");
+                boardView.animateMove(before, next, move, () -> render(next));
+                return;
+            }
+            render(next);
+        }
+        retryButton.setVisible(snapshot.error() != null);
+        retryButton.setManaged(snapshot.error() != null);
+        if (snapshot.thinking()) {
+            messageLabel.setText("Stockfish myśli… Przy pierwszym użyciu pobiera się silnik (ok. 80 MB).");
+        } else if (snapshot.error() != null) {
+            messageLabel.setText(snapshot.error());
+        } else if (snapshot.options().opponent() == pl.projekt.szachy.computer.Opponent.COMPUTER) {
+            turnLabel.setText(turnLabel.getText().split("\nStockfish:")[0] + "\nStockfish: "
+                    + snapshot.options().difficulty());
+        }
+    }
+    @FXML private void retryComputer() {
+        if (game instanceof ComputerGame computer) { computer.retryComputer(); updateComputer(); }
+    }
+    @Override public void close() { if (computerUpdates != null) computerUpdates.stop(); }
 
     private String captures(GameState state, Side side) {
         String result = Arrays.stream(PieceType.values())

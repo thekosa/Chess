@@ -12,25 +12,28 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.util.Objects;
-import java.util.function.Supplier;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import pl.projekt.szachy.computer.GameOptions;
 
 /** Shared launcher for all frontends; each mode owns an independent game session. */
 final class ModeSelectionView {
     private ModeSelectionView() { }
 
-    static void show(Stage stage, Runnable openDesktop, Supplier<String> openWeb,
+    static void show(Stage stage, Consumer<GameOptions> openDesktop, Function<GameOptions, String> openWeb,
                      boolean startConsole, boolean startWeb) {
         Label eyebrow = new Label("SZACHY / WYBIERZ SWÓJ STYL");
         eyebrow.getStyleClass().add("mode-eyebrow");
         Label title = new Label("Jak chcesz zagrać?");
         title.getStyleClass().add("mode-title");
-        Label intro = new Label("Wybierz interfejs. W każdym trybie gracie we dwoje na jednym komputerze.");
+        Label intro = new Label("Zagraj we dwoje lub zmierz się ze Stockfishem. Wybierz przeciwnika i interfejs.");
         intro.setWrapText(true);
+        GameOptionsView options = new GameOptionsView(GameOptions.local());
 
         Button desktop = new Button("Graj w oknie");
         desktop.setId("desktop-mode");
         desktop.setDefaultButton(true);
-        desktop.setOnAction(event -> openDesktop.run());
+        desktop.setOnAction(event -> openDesktop.accept(options.options()));
         VBox graphicalCard = card("01 / GRAFICZNY", "Klasyczna plansza",
                 "Figury, podświetlane ruchy i płynne animacje. Sterowanie myszką.", desktop);
 
@@ -52,18 +55,19 @@ final class ModeSelectionView {
         feedback.getStyleClass().add("mode-feedback");
         web.setOnAction(event -> {
             try {
-                String address = openWeb.get();
+                String address = openWeb.apply(options.options());
                 feedback.setText("Gra: " + address + "  Pozostaw okno Szachy otwarte podczas gry w przeglądarce.");
             } catch (Exception exception) {
                 feedback.setText("Nie udało się otworzyć gry webowej: " + exception.getMessage());
             }
         });
         console.setOnAction(event -> {
+            GameOptions selectedOptions = options.options();
             console.setDisable(true);
             feedback.setText("Otwieranie terminala…");
             Thread worker = new Thread(() -> {
                 try {
-                    ConsoleLauncher.launch();
+                    ConsoleLauncher.launch(selectedOptions);
                     Platform.runLater(() -> {
                         console.setDisable(false);
                         feedback.setText("Terminal został otwarty. Wpisz help, aby zobaczyć polecenia.");
@@ -79,10 +83,10 @@ final class ModeSelectionView {
             worker.start();
         });
 
-        VBox root = new VBox(14, eyebrow, title, intro, cards, feedback);
+        VBox root = new VBox(14, eyebrow, title, intro, options, cards, feedback);
         root.setPadding(new Insets(34));
         root.getStyleClass().add("mode-window");
-        Scene scene = new Scene(root, 940, 500);
+        Scene scene = new Scene(root, 940, 610);
         scene.getStylesheets().add(Objects.requireNonNull(
                 ModeSelectionView.class.getResource("modes.css")).toExternalForm());
         stage.setTitle("Szachy — wybierz tryb");
