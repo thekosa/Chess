@@ -1,6 +1,8 @@
 package pl.projekt.szachy.console;
 
 import pl.projekt.szachy.core.LocalGame;
+import pl.projekt.szachy.computer.ComputerGame;
+import pl.projekt.szachy.computer.GameOptions;
 import org.jline.nativ.JLineNativeLoader;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
@@ -25,6 +27,8 @@ public final class ConsoleMain {
             System.out.println("Szachy ASCII: e2 e4, moves e2, e7 e8 q, new, history, size full/compact, quit.");
             System.out.println("Opcje: --ansi, --plain. Rozmiar okna jest wykrywany na biezaco.");
             System.out.println("Tryb --plain: --columns=N, --rows=N. Plansza pelna: min. 117x66.");
+            System.out.println("Komputer: --opponent=COMPUTER --difficulty=EASY|MEDIUM|HARD --side=WHITE|BLACK.");
+            System.out.println("W grze: computer easy/medium/hard [white/black], local, retry.");
             return;
         }
         boolean ansi = !Arrays.asList(args).contains("--plain")
@@ -41,12 +45,12 @@ public final class ConsoleMain {
             BufferedReader input = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
             screen = new TerminalScreen(out, input, columns, rows);
         }
-        try (screen) {
+        try (screen; ComputerGame game = new ComputerGame(GameOptions.fromArguments(args))) {
             Thread cleanup = new Thread(screen::close, "restore-terminal");
             Runtime.getRuntime().addShutdownHook(cleanup);
             try {
                 screen.open();
-                new ConsoleGame(new LocalGame(), screen, AsciiBoard.Size.FULL, ansi).run();
+                new ConsoleGame(game, screen, AsciiBoard.Size.FULL, ansi).run();
             } finally {
                 try {
                     Runtime.getRuntime().removeShutdownHook(cleanup);
@@ -59,7 +63,7 @@ public final class ConsoleMain {
 
     /** Runtime locations also cover IntelliJ's separate module output directories. */
     public static String runtimeClasspath() throws Exception {
-        List<Class<?>> entries = List.of(ConsoleMain.class, LocalGame.class, Terminal.class,
+        List<Class<?>> entries = List.of(ConsoleMain.class, LocalGame.class, ComputerGame.class, Terminal.class,
                 JniTerminalProvider.class, JLineNativeLoader.class);
         java.util.ArrayList<String> paths = new java.util.ArrayList<>();
         for (Class<?> entry : entries) {

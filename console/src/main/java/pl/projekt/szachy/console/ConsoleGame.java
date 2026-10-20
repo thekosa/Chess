@@ -1,6 +1,7 @@
 package pl.projekt.szachy.console;
 
 import pl.projekt.szachy.core.api.GameApi;
+import pl.projekt.szachy.computer.*;
 import pl.projekt.szachy.core.model.*;
 
 import java.io.IOException;
@@ -17,6 +18,7 @@ final class ConsoleGame {
     private final boolean animate;
     private Square selected;
     private Set<Square> targets = Set.of();
+    private GameState displayedState;
     private String message = "Wpisz e2, aby zaznaczyc pionka, potem e4, aby go przesunac.";
 
     ConsoleGame(GameApi game, TerminalScreen screen,
@@ -25,13 +27,21 @@ final class ConsoleGame {
         this.screen = screen;
         this.board = new AsciiBoard(size);
         this.animate = animate;
+        this.displayedState = game.getState();
     }
 
     void run() throws IOException, InterruptedException {
         while (!Thread.currentThread().isInterrupted()) {
+            // Plain input cannot poll while readLine blocks, so finish the computer turn first.
+            if (!animate && game instanceof ComputerGame computer) {
+                boolean announced = false;
+                while (computer.snapshot().thinking()) {
+                    if (!announced) { screen.draw(frame(screen.columns(), screen.rows())); announced = true; }
+                    Thread.sleep(100);
+                }
+            }
             String line = screen.readLine((columns, rows) -> {
-                board.fitToViewport(columns, rows);
-                return board.frame(game.getState(), selected, targets, message);
+                return frame(columns, rows);
             });
             if (line == null || line.strip().equalsIgnoreCase("quit") || line.strip().equalsIgnoreCase("exit")) {
                 return;
@@ -53,6 +63,7 @@ final class ConsoleGame {
             case "new" -> {
                 requireCount(parts, 1);
                 game.newGame();
+                displayedState = game.getState();
                 clearSelection();
                 message = "Nowa partia. Zaczynaja biale.";
             }
@@ -69,7 +80,26 @@ final class ConsoleGame {
                     throw new IllegalArgumentException("Rozmiary: full, compact, small, tiny.");
                 }
             }
-            case "help" -> message = "Ruch: e2 e4; wybor: e2; promocja: e7 e8 q/r/b/n; anuluj: cancel.";
+            case "help" -> message = "e2 e4; e7 e8 q/r/b/n; new; computer easy/medium/hard [white/black]; local; retry; quit.";
+            case "retry" -> {
+                requireCount(parts, 1);
+                if (game instanceof ComputerGame computer) computer.retryComputer();
+            }
+            case "local", "computer" -> {
+                if (!(game instanceof ComputerGame computer)) throw new IllegalArgumentException("Brak modulu komputera.");
+                GameOptions options;
+                if (parts[0].equals("local")) { requireCount(parts, 1); options = GameOptions.local(); }
+                else {
+                    if (parts.length < 2 || parts.length > 3) throw new IllegalArgumentException("computer easy/medium/hard [white/black]");
+                    options = new GameOptions(Opponent.COMPUTER, Difficulty.valueOf(parts[1].toUpperCase(Locale.ROOT)),
+                            parts.length == 3 ? Side.valueOf(parts[2].toUpperCase(Locale.ROOT)) : Side.WHITE);
+                }
+                computer.configure(options);
+                displayedState = computer.getState();
+                clearSelection();
+                message = "Nowa partia: " + options.opponent() + (options.opponent() == Opponent.COMPUTER
+                        ? " / " + options.difficulty() + " / grasz " + (options.humanSide() == Side.WHITE ? "bialymi" : "czarnymi") : "");
+            }
             case "history" -> message = history();
             case "cancel" -> {
                 clearSelection();
@@ -94,6 +124,9 @@ final class ConsoleGame {
     }
 
     private void select(Square square) {
+        if (game instanceof ComputerGame computer && computer.isComputerTurn()) {
+            throw new IllegalArgumentException("Teraz gra Stockfish. W razie bledu: retry; nowa partia: new.");
+        }
         List<Move> moves = game.getLegalMoves(square);
         Piece piece = game.getState().board().get(square);
         if (piece == null || piece.side() != game.getState().sideToMove()) {
@@ -122,6 +155,33 @@ final class ConsoleGame {
         }
         clearSelection();
         message = "Ruch " + move.from() + " -> " + move.to() + ".";
+        animateMove(before, result.state(), move);
+        displayedState = result.state();
+    }
+
+    private TerminalScreen.Frame frame(int columns, int rows) {
+        GameState state = game.getState();
+        if (state != displayedState) {
+            clearSelection();
+            if (state.moveHistory().size() == displayedState.moveHistory().size() + 1) {
+                Move move = state.moveHistory().getLast();
+                message = "Stockfish: " + move.from() + " -> " + move.to() + ".";
+                try { animateMove(displayedState, state, move); }
+                catch (InterruptedException exception) { Thread.currentThread().interrupt(); }
+            }
+            displayedState = state;
+        }
+        board.fitToViewport(columns, rows);
+        String footer = message;
+        if (game instanceof ComputerGame computer) {
+            var snapshot = computer.snapshot();
+            if (snapshot.thinking()) footer = "Stockfish mysli... Pierwszy start: pobieranie ok. 80 MB. new / quit";
+            else if (snapshot.error() != null) footer = "Blad komputera. Wpisz retry / new / local. " + snapshot.error();
+        }
+        return board.frame(state, selected, targets, footer);
+    }
+
+    private void animateMove(GameState before, GameState after, Move move) throws InterruptedException {
         if (animate) {
             long start = System.nanoTime();
             long duration = 360_000_000L;
@@ -129,7 +189,7 @@ final class ConsoleGame {
             do {
                 progress = Math.min(1, (System.nanoTime() - start) / (double) duration);
                 board.fitToViewport(screen.columns(), screen.rows());
-                screen.draw(board.animationFrame(before, result.state(), move, progress, message));
+                screen.draw(board.animationFrame(before, after, move, progress, message));
                 if (progress < 1) {
                     Thread.sleep(25);
                 }
