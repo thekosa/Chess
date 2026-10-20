@@ -9,6 +9,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>core</module>
+        <module>console</module>
         <module>desktop</module>
     </modules>
     <properties>
