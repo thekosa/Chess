@@ -28,10 +28,8 @@ public class MainWindow extends Application {
         stage.setTitle("Szachy");
         stage.setScene(scene);
         stage.setResizable(false);
+        stage.sizeToScene();
+        stage.centerOnScreen();
         stage.show();
-    }
-
-    public static void main(String[] args) {
-        launch(args);
     }
 }
