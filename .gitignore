@@ -3,6 +3,8 @@
 out/
 .tools/
 .m2/
+**/node_modules/
+web/frontend/.vite/
 # IDE files
 .idea/
 *.iml
