@@ -1,6 +1,6 @@
 # Szachy
 
-Projekt rozpoczęty na zajęciach JTP. Gra dla dwóch osób na jednym komputerze,
+Projekt rozpoczęty na zajęciach JTP. Gra dla dwóch osób lub przeciwko komputerowi,
 z niezależnym silnikiem oraz interfejsami JavaFX, ASCII w terminalu i React w przeglądarce.
 
 ## Uruchamianie
@@ -31,7 +31,7 @@ Na początku pojawia się okno wyboru trybu: **Graficzny**, **Konsola ASCII**
 oraz **Web**. Tryb graficzny otwiera obecną planszę, konsolowy uruchamia
 osobne okno terminala, a webowy otwiera grę w domyślnej przeglądarce.
 Konfiguracje IntelliJ **Szachy ASCII** i **Szachy Web** od razu wybierają
-odpowiedni tryb. Po dodaniu modułów `console` i `web` należy odświeżyć
+odpowiedni tryb. Po dodaniu modułów `console`, `web` i `computer` należy odświeżyć
 projekt Maven w IntelliJ (**Reload All Maven Projects**).
 
 Można też otworzyć `desktop/src/main/java/pl/projekt/szachy/desktop/Launcher.java`
@@ -45,6 +45,7 @@ projekt Maven w IDE.
 ## Podział projektu
 
 - `core` — stan partii i publiczne API, bez zależności od JavaFX, Swinga lub AWT.
+- `computer` — wspólna obsługa przeciwnika Stockfish, ustawień partii i obliczeń w tle.
 - `console` — rysowane figury ASCII, kolory i animacje; korzysta z silnika i JLine.
 - `web` — adapter HTTP silnika i gotowy frontend React; działa również bez JavaFX.
 - `desktop` — interfejs JavaFX oraz okno wyboru trzech trybów.
@@ -60,13 +61,32 @@ białe i czarne. Przy promocji pionka wybierz hetmana, wieżę, gońca lub skocz
 Silnik sprawdza ruchy wszystkich figur, przeszkody, bicie, bezpieczeństwo
 króla, roszadę, bicie w przelocie oraz promocję. Rozpoznaje szacha, mata i pata.
 Interfejs wyświetla historię ruchów, zbite figury i wynik zakończonej partii.
-„Nowa gra” resetuje pozycję, kolejkę, historię, zbicia i zaznaczenie.
+„Nowa gra” pozwala wybrać przeciwnika i resetuje pozycję, kolejkę, historię, zbicia i zaznaczenie.
 Wszystkie dane planszy i decyzje o legalności ruchu pochodzą z silnika.
 
 Figury przesuwają się płynnie przez około 300 ms, a zbita figura kurczy się
 i zanika. Animacje obejmują również roszadę, bicie w przelocie i promocję.
-Podczas animacji kliknięcia planszy są wstrzymane; „Nowa gra” przerywa
-animację i natychmiast resetuje widok.
+Podczas animacji kliknięcia planszy są wstrzymane. Zatwierdzenie nowej gry
+przerywa animację i resetuje widok.
+
+## Gra z komputerem
+
+W oknie startowym wybierz **Komputer — Stockfish**, poziom **Łatwy**, **Średni**
+lub **Trudny** oraz grę białymi albo czarnymi. Ustawienia dotyczą wszystkich
+interfejsów: JavaFX, ASCII i Web. Zmiana przeciwnika lub poziomu rozpoczyna nową partię.
+W oknie i przeglądarce służy do tego przycisk **Nowa gra / Nowa partia**.
+
+Przy pierwszym ruchu komputera aplikacja automatycznie pobiera oficjalny
+Stockfish 19 (około 80 MB) i sprawdza SHA-256. Później silnik działa lokalnie,
+bez internetu, konta i płatnego API. Obliczenia oraz pobieranie odbywają się
+w tle. Przy niepowodzeniu można ponowić próbę lub rozpocząć inną partię.
+Poziomy zmieniają siłę oraz czas namysłu; nie oznaczają konkretnych rankingów Elo.
+Nawet najniższy poziom Stockfisha może stanowić wyzwanie dla początkujących.
+
+Obsługiwane automatycznie: Windows i Linux x64/ARM64 oraz macOS Intel/Apple Silicon.
+W projekcie cache jest w ignorowanym `.tools/stockfish`; dla przeniesionej aplikacji
+w `~/.cache/szachy/stockfish`. Własny plik silnika można wskazać zmienną
+`CHESS_STOCKFISH_PATH`. Szczegóły: [docs/stockfish.md](docs/stockfish.md).
 
 Zapis i wczytywanie, cofanie ruchów oraz dodatkowe reguły remisów
 (powtórzenia, licznik posunięć i niewystarczający materiał) pozostają
@@ -90,8 +110,8 @@ ruchy przez API HTTP; sam nie podejmuje decyzji o legalności posunięcia.
 
 Partia jest przywracana po odświeżeniu tej samej karty, dopóki serwer działa
 i sesja nie wygasła (2 godziny bezczynności). Nowa karta ma własną partię.
-Zapis jest w pamięci serwera; jego restart usuwa partie. Jest to na razie
-gra dwóch osób w jednej przeglądarce. Pokoje i gracze z różnych komputerów
+Zapis jest w pamięci serwera; jego restart usuwa partie. Można grać
+z komputerem lub we dwoje w jednej przeglądarce. Pokoje i gracze z różnych komputerów
 pozostają do następnego etapu.
 
 Serwer można uruchomić bez JavaFX, z głównego katalogu repozytorium:
@@ -141,6 +161,9 @@ Polecenia:
 - `cancel`, `new`, `history`, `help`, `quit` — anulowanie wyboru, nowa partia,
   ostatnie ruchy, pomoc i zakończenie.
 - `size full`, `size compact`, `size small`, `size tiny` — maksymalny rozmiar rysunków.
+- `computer easy`, `computer medium`, `computer hard black` — nowa partia z komputerem;
+  opcjonalny kolor `white` lub `black` (domyślnie biały).
+- `local` — nowa partia dwóch osób; `retry` — ponowienie nieudanego ruchu komputera.
 
 Z okna wyboru na Windows uruchamiany jest PowerShell z obsługą ANSI.
 JLine odczytuje rzeczywistą wielkość terminala, a gra na bieżąco dopasowuje
@@ -162,6 +185,9 @@ repozytorium w terminalu obsługującym ANSI (np. Windows Terminal):
 .\mvnw.cmd -pl console -am -Dmaven.test.skip=true package
 java -jar console/target/chess-console-1.0-SNAPSHOT.jar --ansi
 ```
+
+Bezpośredni start z komputerem: dodaj
+`--opponent=COMPUTER --difficulty=MEDIUM --side=WHITE`.
 
 Katalog `console/target/lib` zawiera zależności potrzebne plikowi JAR;
 przy przenoszeniu konsoli zachowaj go obok pliku aplikacji.

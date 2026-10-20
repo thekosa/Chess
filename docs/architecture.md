@@ -2,16 +2,17 @@
 
 ## Granica modułów
 
-`desktop -> GameApi -> LocalGame -> ChessRules -> GameState`
+`desktop -> GameApi / ComputerGame -> LocalGame -> ChessRules -> GameState`
 
-`console -> GameApi -> LocalGame -> ChessRules -> GameState`
+`console -> GameApi / ComputerGame -> LocalGame -> ChessRules -> GameState`
 
-`React -> HTTP/JSON -> ChessWebServer -> GameApi -> LocalGame -> ChessRules -> GameState`
+`React -> HTTP/JSON -> ChessWebServer -> ComputerGame -> LocalGame -> ChessRules -> GameState`
 
 Silnik jest biblioteką Java zależną wyłącznie od `java.base`.
 Interfejs otrzymuje obiekt `GameApi` w konstruktorze kontrolera.
-Punkt startowy aplikacji tworzy konkretny silnik `LocalGame`.
-Frontend konsolowy korzysta z tego samego API i ma własny obiekt `LocalGame`.
+Punkty startowe tworzą `ComputerGame`, który implementuje `GameApi` i posiada
+własny `LocalGame`. W trybie dwóch osób przekazuje ruchy obu stron, a w grze
+z komputerem pozwala użytkownikowi poruszać wyłącznie jego stroną.
 
 Deskryptory `module-info.java` określają granice modułów Javy.
 Silnik eksportuje API, model i klasę `LocalGame`.
@@ -19,7 +20,8 @@ Interfejs wymaga silnika i modułów JavaFX, a kontroler udostępnia FXML.
 Moduł `console` korzysta z `core` oraz JLine Terminal z dostawcą JNI.
 JLine odpowiada za dostęp do terminala i klawiatury, a silnik pozostaje
 zależny wyłącznie od `java.base`.
-`web` korzysta z `core`, standardowego `jdk.httpserver` i Gson.
+Moduł `computer` zależy tylko od `core`; frontend konsolowy, webowy i desktopowy
+korzystają z niego wspólnie. `web` używa też standardowego `jdk.httpserver` i Gson.
 `desktop` zna także punkty wejścia konsoli i serwera, aby otworzyć je z menu startowego.
 Reguły gry pozostają w `core`; uruchamianie trybów należy do frontendów.
 
@@ -50,7 +52,34 @@ JavaFX przelicza rząd na wiersz ekranu, aby białe znajdowały się na dole.
 w przelocie, status partii, historię ruchów i zbite figury.
 Wszystkie kolekcje oraz ich elementy są niezmienne.
 Każda sesja ma własny obiekt `LocalGame`. Adapter HTTP szereguje żądania
-do jednej partii przez synchronizację na jej sesji.
+do jednej partii przez synchronizację na `ComputerGame`, wspólną również z
+wątkiem zatwierdzającym ruch Stockfisha.
+
+## Komputerowy przeciwnik
+
+`GameOptions` określa przeciwnika, poziom i stronę człowieka. `ComputerGame`
+przechowuje też monotoniczną rewizję, stan obliczeń i błąd. Po ruchu człowieka
+zleca obliczenie na jednej ze wspólnych dwóch kolejek roboczych (pula dwóch
+wątków, maksymalnie 256 oczekujących zadań). `StockfishClient` uruchamia proces
+UCI, przekazuje pozycję początkową i historię ruchów, a następnie odbiera `bestmove`.
+Ruch jest ponownie walidowany przez `LocalGame`. Proces kończy się po obliczeniu;
+nie pozostaje uruchomiony podczas oczekiwania na człowieka.
+
+Reset i zamknięcie anulują zadanie oraz zwiększają generację. Wynik starej
+generacji nie może zmienić nowej partii. Błąd obliczeń pozostawia kolej komputera;
+nie przydziela jego figur użytkownikowi. Ponowienie jest jawną operacją.
+Tryb dwóch osób nie uruchamia silnika ani pobierania.
+
+`StockfishInstallation` instaluje przypiętą wersję 19 z oficjalnego GitHub,
+weryfikuje SHA-256 i zachowuje pliki licencji oraz źródeł z paczki. Blokada
+plikowa zapobiega równoległej instalacji przez kilka procesów aplikacji.
+Możliwa jest konfiguracja własnej ścieżki silnika i cache; patrz `stockfish.md`.
+
+JavaFX odczytuje zmiany co 100 ms, interaktywny terminal przy odświeżaniu
+wejścia, a React co 400 ms przez HTTP. Ruch komputera jest animowany z dwóch
+zatwierdzonych stanów tak samo jak ruch człowieka. Żaden interfejs nie liczy
+ruchu samodzielnie. W konsolowym trybie `--plain` aplikacja czeka na odpowiedź
+komputera przed kolejnym blokującym odczytem linii.
 
 ## Ruchy i bicie
 
@@ -155,7 +184,7 @@ promocji. Te identyfikatory i ścieżki nie są regułami gry. Ustawienie system
 ograniczania animacji wyłącza przejścia. Nowa partia anuluje pozostałe klatki
 poprzedniego ruchu.
 
-Ta wersja udostępnia lokalną partię dwóch osób w jednej przeglądarce.
+Ta wersja udostępnia lokalną partię dwóch osób lub grę przeciwko Stockfishowi.
 Do gry sieciowej potrzeba dodatkowo tożsamości i kolorów graczy,
 kontrolowanego dołączania do pokoju i powiadomień o zmianach pozycji.
 

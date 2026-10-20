@@ -8,11 +8,12 @@ Polecenia POST wymagają `Content-Type: application/json`; limit treści to 8 Ki
 ## Operacje
 
 - `GET /api/health` — odpowiedź `{"status":"ok"}`.
-- `POST /api/games`, treść `{}` — nowa partia, HTTP 201 i stan.
+- `POST /api/games`, treść `{}` lub ustawienia przeciwnika — nowa partia, HTTP 201 i stan.
 - `GET /api/games/{id}` — aktualny stan.
 - `GET /api/games/{id}/moves?from=e2` — legalne ruchy figury aktywnej strony.
 - `POST /api/games/{id}/moves` — wykonanie ruchu.
 - `POST /api/games/{id}/reset` — reset tej samej sesji do pozycji początkowej.
+- `POST /api/games/{id}/retry` — ponowienie nieudanego ruchu komputera (treść: aktualna `revision`).
 
 Przykładowe polecenie ruchu:
 
@@ -22,6 +23,17 @@ Przykładowe polecenie ruchu:
 
 Przy promocji `promotion` przyjmuje `QUEEN`, `ROOK`, `BISHOP` lub `KNIGHT`.
 Reset wymaga tylko aktualnej rewizji, np. `{"revision":12}`.
+Może też zmienić ustawienia. Przy tworzeniu pominięte ustawienia oznaczają
+dwóch graczy, poziom średni i biały kolor człowieka; reset zachowuje pominięte wartości.
+
+Przykład utworzenia partii z komputerem:
+
+```json
+{"opponent":"COMPUTER","difficulty":"EASY","humanSide":"BLACK"}
+```
+
+`opponent`: `TWO_PLAYERS` lub `COMPUTER`; `difficulty`: `EASY`, `MEDIUM`, `HARD`;
+`humanSide`: `WHITE`, `BLACK`. Ustawienia komputera są ignorowane w grze dwóch osób.
 
 ## Stan
 
@@ -31,6 +43,11 @@ Reset wymaga tylko aktualnej rewizji, np. `{"revision":12}`.
   "revision": 0,
   "sideToMove": "WHITE",
   "status": "ACTIVE",
+  "opponent": "TWO_PLAYERS",
+  "difficulty": "MEDIUM",
+  "humanSide": "WHITE",
+  "computerThinking": false,
+  "computerError": null,
   "board": [{"square":"e2","side":"WHITE","type":"PAWN"}],
   "history": [],
   "capturedPieces": []
@@ -50,8 +67,16 @@ Zapytanie o ruchy zwraca rewizję pozycji, dla której je wyznaczono:
 ```
 
 Udany ruch/reset zwraca HTTP 200 i cały nowy stan. Rewizja rośnie również
-po resecie i nie jest numerem ruchu. Serwer wykonuje kontrolę rewizji
-i zmianę silnika pod tą samą blokadą sesji.
+po ruchu Stockfisha i resecie; nie jest numerem ruchu. Serwer wykonuje kontrolę
+rewizji i zmianę silnika pod tą samą blokadą `ComputerGame`.
+
+Ruch komputera jest asynchroniczny. Klient w trybie `COMPUTER` odpytuje stan
+co około 400 ms i animuje zmianę po wzroście rewizji. `computerThinking` obejmuje
+również oczekiwanie w kolejce i pierwszą instalację. `computerError` zawiera
+komunikat błędu lub `null`; można wtedy wysłać `/retry`. Te dwa pola mogą
+zmienić się bez zwiększenia rewizji planszy. Ponowienie zwraca HTTP 200 i stan.
+Podczas kolejki komputera lista legalnych ruchów dla użytkownika jest pusta,
+a próba ruchu człowieka daje `WRONG_SIDE`.
 
 ## Błędy i czas życia
 
