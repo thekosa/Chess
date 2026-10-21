@@ -4,6 +4,7 @@ import { api } from './api';
 import { initialPieces, movingPieces, finishPieces } from './animation';
 import { finished, resultLabel } from './gameStatus';
 import { EndCelebration } from './EndCelebration';
+import { Lobby, newClientId } from './Lobby';
 import './style.css';
 
 const STORAGE = 'szachy.web.game.v1';
@@ -15,6 +16,7 @@ const file = square => square.charCodeAt(0) - 97;
 const rank = square => Number(square[1]) - 1;
 const image = piece => `/pieces/${piece.side.toLowerCase()}_${piece.type.toLowerCase()}.png`;
 const computerTurn = game => game?.opponent === 'COMPUTER' && game.sideToMove !== game.humanSide && !finished(game);
+const onlineBlocked = game => !!game?.room && !game.room.canMove;
 
 function Icon({ name, ...props }) {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
@@ -87,8 +89,10 @@ function Board({ game, tokens, selected, moves, onSquare, flipped, blocked, show
 }
 
 function Player({ side, game, position }) {
-  const active = game?.sideToMove === side && !finished(game);
-  const name = game?.opponent === 'COMPUTER' ? (side === game.humanSide ? 'Ty' : `Stockfish · ${LEVEL[game.difficulty]}`) : position;
+  const active = game?.sideToMove === side && !finished(game) && (!game?.room || game.room.status === 'PLAYING');
+  const participant = game?.room?.players.find(player => player.side === side);
+  const name = game?.room ? (participant ? `${participant.name}${side === game.room.yourSide ? ' · Ty' : ''}${participant.connected ? '' : ' · rozłączony'}` : 'Czekamy na gracza…')
+    : game?.opponent === 'COMPUTER' ? (side === game.humanSide ? 'Ty' : `Stockfish · ${LEVEL[game.difficulty]}`) : position;
   return <div className={`player ${active ? 'active' : ''}`}>
     <div className={`player-avatar ${side.toLowerCase()}`}><img src={image({ side, type: 'KING' })} alt="" /></div>
     <div><strong>{side === 'WHITE' ? 'Białe' : 'Czarne'}</strong><span>{name}</span></div>
@@ -121,7 +125,7 @@ function GameSetup({ initial, onClose, onPlay }) {
   </Modal>;
 }
 
-function App() {
+function App({ onlineSession, onLeave }) {
   const [game, setGame] = useState(null);
   const [tokens, setTokens] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -131,12 +135,17 @@ function App() {
   const [fault, setFault] = useState(null);
   const [promotion, setPromotion] = useState(null);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [confirmLeave, setConfirmLeave] = useState(false);
   const [flipped, setFlipped] = useState(false);
   const gameRef = useRef(null);
   const busy = useRef(true);
   const operation = useRef(0);
   const timer = useRef(null);
   const history = useRef(null);
+
+  function request(path, body) {
+    return onlineSession ? api(path.replace(`/games/${onlineSession.roomId}`, `/rooms/${onlineSession.roomId}`), body, onlineSession.accessToken) : api(path, body);
+  }
 
   function install(snapshot) {
     clearTimeout(timer.current);
@@ -146,7 +155,7 @@ function App() {
     setSelected(null);
     setMoves([]);
     setPromotion(null);
-    try { sessionStorage.setItem(STORAGE, snapshot.id); } catch { /* Storage can be disabled by the browser. */ }
+    if (!onlineSession) { try { sessionStorage.setItem(STORAGE, snapshot.id); } catch { /* Optional storage. */ } }
   }
 
   async function load() {
@@ -156,6 +165,11 @@ function App() {
     setPhase('loading');
     setFault(null);
     try {
+      if (onlineSession) {
+        const snapshot = await request(`/games/${onlineSession.roomId}`);
+        if (sequence !== operation.current) return;
+        install(snapshot); setFlipped(snapshot.room.yourSide === 'BLACK'); return;
+      }
       let id = gameRef.current?.id;
       try { id ||= sessionStorage.getItem(STORAGE); } catch { /* A session still works without storage. */ }
       const params = new URLSearchParams(window.location.search);
@@ -200,24 +214,24 @@ function App() {
   }, [game?.history.length]);
 
   useEffect(() => {
-    if (game?.opponent !== 'COMPUTER') return;
+    if (game?.opponent !== 'COMPUTER' && !onlineSession) return;
     let cancelled = false, polling = false;
     const interval = setInterval(async () => {
-      if (cancelled || polling || busy.current || fault) return;
+      if (cancelled || polling || busy.current || fault || !gameRef.current) return;
       const before = gameRef.current;
       const sequence = operation.current;
       polling = true;
       try {
-        const next = await api(`/games/${before.id}`);
+        const next = await request(`/games/${before.id}`);
         if (cancelled || busy.current || sequence !== operation.current
             || before !== gameRef.current) return;
         if (next.revision !== before.revision) {
           if (next.revision === before.revision + 1 && next.history.length === before.history.length + 1) {
             const move = next.history.at(-1);
-            setNotice(`Stockfish: ${move.from} → ${move.to}.`);
+            setNotice(`${onlineSession ? 'Przeciwnik' : 'Stockfish'}: ${move.from} → ${move.to}.`);
             presentMove(before, next, move, ++operation.current);
-          } else install(next);
-        } else if (next.computerThinking !== before.computerThinking || next.computerError !== before.computerError) {
+          } else { install(next); if (next.room) setFlipped(next.room.yourSide === 'BLACK'); }
+        } else if (onlineSession || next.computerThinking !== before.computerThinking || next.computerError !== before.computerError) {
           gameRef.current = next;
           setGame(next);
         }
@@ -236,7 +250,7 @@ function App() {
   }
 
   async function choose(square) {
-    if (busy.current || fault || !gameRef.current || finished(gameRef.current) || computerTurn(gameRef.current)) return;
+    if (busy.current || fault || !gameRef.current || finished(gameRef.current) || computerTurn(gameRef.current) || onlineBlocked(gameRef.current)) return;
     if (square === selected) { setSelected(null); setMoves([]); return; }
     const candidates = moves.filter(move => move.to === square);
     if (selected && candidates.length) {
@@ -256,10 +270,10 @@ function App() {
     setSelected(square);
     setMoves([]);
     try {
-      const result = await api(`/games/${current.id}/moves?from=${square}`);
+      const result = await request(`/games/${current.id}/moves?from=${square}`);
       if (sequence !== operation.current) return;
       if (result.revision !== current.revision) {
-        const currentPosition = await api(`/games/${current.id}`);
+        const currentPosition = await request(`/games/${current.id}`);
         if (sequence !== operation.current) return;
         install(currentPosition);
         setNotice('Pozycja została odświeżona. Wybierz figurę ponownie.');
@@ -281,7 +295,7 @@ function App() {
     setSelected(null);
     setMoves([]);
     try {
-      const next = await api(`/games/${before.id}/moves`, { ...move, revision: before.revision });
+      const next = await request(`/games/${before.id}/moves`, { ...move, revision: before.revision });
       if (sequence !== operation.current) return;
       setNotice(`Ruch ${move.from} → ${move.to}${move.promotion ? `, promocja na: ${NAMES[move.promotion]}` : ''}.`);
       presentMove(before, next, move, sequence);
@@ -360,13 +374,33 @@ function App() {
     setPhase('requesting');
     try {
       const current = gameRef.current;
-      const next = await api(`/games/${current.id}/claim-draw`, { revision: current.revision });
+      const next = await request(`/games/${current.id}/claim-draw`, { revision: current.revision });
       if (sequence === operation.current) { install(next); setNotice('Remis został zgłoszony.'); }
     } catch (error) { if (sequence === operation.current) failure(error); }
     finally { if (sequence === operation.current) { busy.current = false; setPhase('idle'); } }
   }
 
-  const status = resultLabel(game);
+  async function rematch() {
+    if (busy.current) return;
+    const sequence = ++operation.current;
+    busy.current = true; setPhase('requesting');
+    try {
+      const current = gameRef.current;
+      const next = await request(`/games/${current.id}/rematch`, { revision: current.revision });
+      if (sequence === operation.current) {
+        install(next); setFlipped(next.room.yourSide === 'BLACK');
+        setNotice(next.room.rematchRequested ? 'Propozycja rewanżu wysłana. Czekamy na przeciwnika.' : 'Nowa partia. Zamieniliście się kolorami.');
+      }
+    } catch (error) { if (sequence === operation.current) failure(error); }
+    finally { if (sequence === operation.current) { busy.current = false; setPhase('idle'); } }
+  }
+  async function copyInvite() {
+    const url = `${location.origin}/?room=${gameRef.current.id}`;
+    try { await navigator.clipboard.writeText(url); setNotice('Link do pokoju skopiowany. Wyślij go znajomemu.'); }
+    catch { setNotice(`Link do pokoju: ${url}`); }
+  }
+
+  const status = game?.room?.status === 'WAITING' ? 'Czekamy na przeciwnika' : resultLabel(game);
   const captures = side => (game?.capturedPieces || []).filter(piece => piece.side === side);
   const rows = Array.from({ length: Math.ceil((game?.history.length || 0) / 2) }, (_, index) => game.history.slice(index * 2, index * 2 + 2));
   const notation = move => move ? <>{move.from}<span className="move-arrow">→</span>{move.to}{move.promotion && <small>={NAMES[move.promotion]}</small>}</> : <span className="muted">—</span>;
@@ -374,7 +408,7 @@ function App() {
   return <div className="page">
     <header className="page-header">
       <a className="brand" href="/" aria-label="Szachy, strona główna"><span className="brand-mark"><Icon name="king" /></span><span>szachy<span className="brand-period">.</span></span></a>
-      <span className="local-label"><i /> {game?.opponent === 'COMPUTER' ? `Stockfish · ${LEVEL[game.difficulty]}` : 'Dwoje graczy · jedna plansza'}</span>
+      <span className="local-label"><i /> {onlineSession ? `Online · ${game?.room?.name || 'Pokój'}` : game?.opponent === 'COMPUTER' ? `Stockfish · ${LEVEL[game.difficulty]}` : 'Dwoje graczy · jedna plansza'}</span>
     </header>
     <section className="intro"><div><p className="eyebrow">MAŁA PLANSZA, WIELKIE PLANY</p><h1>Twoja kolej.</h1></div><p>Zagraj we dwoje lub z komputerem.<br />Dobry ruch zaczyna się tutaj.</p></section>
 
@@ -383,7 +417,7 @@ function App() {
     <main className="game-layout">
       <section className="board-section" aria-label="Plansza i gracze">
         <Player side={flipped ? 'WHITE' : 'BLACK'} game={game} position="Po drugiej stronie planszy" />
-        <div className="board-frame"><Board game={game} tokens={tokens} selected={selected} moves={moves} onSquare={choose} flipped={flipped} blocked={phase !== 'idle' || !!fault || !!promotion || finished(game) || computerTurn(game)} showResult={finished(game) && phase === 'idle'} /></div>
+        <div className="board-frame"><Board game={game} tokens={tokens} selected={selected} moves={moves} onSquare={choose} flipped={flipped} blocked={phase !== 'idle' || !!fault || !!promotion || finished(game) || computerTurn(game) || onlineBlocked(game)} showResult={finished(game) && phase !== 'animating' && phase !== 'loading'} /></div>
         <Player side={flipped ? 'BLACK' : 'WHITE'} game={game} position="Po tej stronie planszy" />
         <div className="board-footer"><span>Kliknij figurę, potem pole docelowe.</span><button className="text-button" onClick={() => setFlipped(!flipped)} disabled={phase !== 'idle'}><Icon name="flip" /> Obróć planszę</button></div>
       </section>
@@ -394,7 +428,7 @@ function App() {
           <h2>{status}</h2>
           {game?.status === 'CHECK' && <span className="check-badge">Szach — osłoń swojego króla</span>}
           {game?.status === 'CHECKMATE' && <span className="check-badge">Mat. Dobra partia!</span>}
-          <p>{game?.computerThinking ? 'Stockfish myśli… Przy pierwszej grze aplikacja pobiera silnik (ok. 80 MB).' : game?.computerError || (finished(game) ? 'Rewanż? Rozpocznij nową partię.' : notice)}</p>
+          <p>{game?.computerThinking ? 'Stockfish myśli… Przy pierwszej grze aplikacja pobiera silnik (ok. 80 MB).' : game?.computerError || (game?.room?.rematchRequested ? 'Czekamy na zgodę przeciwnika na rewanż.' : game?.room?.opponentWantsRematch ? 'Przeciwnik proponuje rewanż. Kliknij „Zagraj rewanż”, aby zaakceptować.' : game?.room?.status === 'WAITING' ? 'Wyślij znajomemu link. Gra ruszy, gdy dołączy druga osoba.' : notice)}</p>
           {game?.computerError && <button className="retry-computer" onClick={retryComputer} disabled={phase !== 'idle'}>Ponów ruch komputera</button>}
         </section>
 
@@ -407,9 +441,13 @@ function App() {
 
         <section className="captures-card panel"><h2>Poza planszą</h2>{['WHITE', 'BLACK'].map(side => <div className="captured-group" key={side}><span>Zbite {SIDE[side]}</span><div>{captures(side).length ? captures(side).map((piece, index) => <img key={index} src={image(piece)} alt={`${NAMES[piece.type]}, ${SIDE[piece.side]}`} />) : <span className="muted">Jeszcze żadna figura</span>}</div></div>)}</section>
 
-        <button className="new-game" disabled={!game || phase === 'requesting' || phase === 'loading'} onClick={() => setConfirmReset(true)}><Icon name="new" /> Nowa partia</button>
+        {onlineSession ? <>
+          <button className="new-game" onClick={copyInvite} disabled={!game}>Skopiuj zaproszenie</button>
+          <button className="new-game" disabled={!finished(game) || phase !== 'idle' || game?.room?.rematchRequested} onClick={rematch}><Icon name="new" /> Zagraj rewanż</button>
+        </> : <button className="new-game" disabled={!game || phase === 'requesting' || phase === 'loading'} onClick={() => setConfirmReset(true)}><Icon name="new" /> Nowa partia</button>}
+        <button className="text-button leave-room" onClick={() => onlineSession ? setConfirmLeave(true) : onLeave()}>{onlineSession ? 'Opuść pokój i wróć do lobby' : 'Pokoje online →'}</button>
         {game?.canClaimDraw && !computerTurn(game) && <button className="new-game" disabled={phase !== 'idle'} onClick={claimDraw}>Zgłoś remis</button>}
-        <p className="session-note">Partia zostanie po odświeżeniu strony.<br />Możecie grać, dopóki aplikacja jest otwarta.</p>
+        <p className="session-note">{onlineSession ? 'Odświeżenie przywróci Twoje miejsce. Pokój ma maksymalnie dwóch graczy.' : <>Partia zostanie po odświeżeniu strony.<br />Możecie grać, dopóki aplikacja jest otwarta.</>}</p>
       </aside>
     </main>
 
@@ -417,7 +455,52 @@ function App() {
 
     {promotion && <Modal title="Czas na awans." onClose={() => setPromotion(null)}><p>Na jaką figurę zamienić pionka?</p><div className="promotion-options">{promotion.map(move => <button key={move.promotion} onClick={() => execute(move)}><img src={image({ side: game.sideToMove, type: move.promotion })} alt="" /><span>{NAMES[move.promotion]}</span></button>)}</div></Modal>}
     {confirmReset && <GameSetup initial={game && { opponent: game.opponent, difficulty: game.difficulty, humanSide: game.humanSide }} onClose={() => setConfirmReset(false)} onPlay={reset} />}
+    {confirmLeave && <Modal title="Opuścić pokój?" onClose={() => setConfirmLeave(false)}><p>Pokój zostanie zamknięty dla obu graczy. Odświeżenie strony zachowuje Twoje miejsce — nie wymaga opuszczania pokoju.</p><div className="modal-actions"><button className="secondary-button" onClick={() => setConfirmLeave(false)}>Zostaję</button><button className="primary-button" onClick={onLeave}>Opuść pokój</button></div></Modal>}
   </div>;
 }
 
-createRoot(document.getElementById('root')).render(<App />);
+const ONLINE_STORAGE = 'szachy.online.session.v1';
+const CLIENT_ID = newClientId();
+function Site() {
+  const [mode, setMode] = useState(() => {
+    const params = new URLSearchParams(location.search);
+    return params.has('launch') || params.has('local') ? 'local' : 'boot';
+  });
+  const [session, setSession] = useState(null);
+  const [error, setError] = useState(null);
+  useEffect(() => {
+    if (mode !== 'boot') return;
+    let cancelled = false;
+    (async () => {
+      let saved;
+      try { saved = JSON.parse(sessionStorage.getItem(ONLINE_STORAGE) || 'null'); } catch { /* Optional storage. */ }
+      try {
+        const invited = new URLSearchParams(location.search).get('room');
+        if (saved && (!invited || invited === saved.roomId)) {
+          const result = await api(`/rooms/${saved.roomId}/reconnect`, { playerToken: saved.playerToken, clientId: CLIENT_ID });
+          if (!cancelled) { setSession(result); setMode('online'); }
+          return;
+        }
+      } catch (error) { if (!cancelled) setError(error.message); }
+      if (!cancelled) setMode('lobby');
+    })();
+    return () => { cancelled = true; };
+  }, [mode]);
+  function enter(result) {
+    try { sessionStorage.setItem(ONLINE_STORAGE, JSON.stringify({ roomId: result.roomId, playerToken: result.playerToken })); } catch { /* This session still works. */ }
+    history.replaceState(null, '', `/?room=${result.roomId}`);
+    setSession(result); setMode('online');
+  }
+  async function leave() {
+    if (session) { try { await api(`/rooms/${session.roomId}/leave`, {}, session.accessToken); } catch { /* Return even when the room has already closed. */ } }
+    try { sessionStorage.removeItem(ONLINE_STORAGE); } catch { /* Optional storage. */ }
+    history.replaceState(null, '', '/'); setSession(null); setMode('lobby'); setError(null);
+  }
+  if (mode === 'boot') return <div className="page lobby-empty"><span className="spinner" /> Przywracamy Twoje miejsce…</div>;
+  if (mode === 'local') return <App key="local" onLeave={() => { history.replaceState(null, '', '/'); setMode('lobby'); }} />;
+  if (mode === 'online') return <App key={session.roomId} onlineSession={session} onLeave={leave} />;
+  return <Lobby clientId={CLIENT_ID} onEnter={enter} initialError={error}
+    onLocal={() => { history.replaceState(null, '', '/?local=1'); setMode('local'); }} />;
+}
+
+createRoot(document.getElementById('root')).render(<Site />);
