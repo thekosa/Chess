@@ -10,6 +10,7 @@
     </parent>
     <artifactId>chess-web</artifactId>
     <dependencies>
+        <dependency><groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter</artifactId><scope>test</scope></dependency>
         <dependency>
             <groupId>pl.projekt.szachy</groupId><artifactId>chess-computer</artifactId><version>${project.version}</version>
         </dependency>

@@ -17,6 +17,7 @@
         <Label fx:id="messageLabel" wrapText="true" minHeight="48" styleClass="message-label" />
         <Button fx:id="newGameButton" text="Nowa gra" onAction="#newGame" maxWidth="Infinity" />
         <Button fx:id="retryButton" text="Ponów ruch komputera" onAction="#retryComputer" visible="false" managed="false" maxWidth="Infinity" />
+        <Button fx:id="claimDrawButton" text="Zgłoś remis" onAction="#claimDraw" visible="false" managed="false" maxWidth="Infinity" />
         <Label fx:id="capturedLabel" wrapText="true" minHeight="64" styleClass="captured-label" />
         <Label text="Ruchy" styleClass="history-title" />
         <ListView fx:id="historyList" prefHeight="220" maxHeight="220" />

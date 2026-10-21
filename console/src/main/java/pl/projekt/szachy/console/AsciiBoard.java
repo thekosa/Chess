@@ -64,6 +64,32 @@ final class AsciiBoard {
         return frame;
     }
 
+    TerminalScreen.Frame celebrationFrame(GameState state, double elapsed, String message) {
+        TerminalScreen.Frame frame = frame(state, null, Set.of(), message);
+        var pieces = state.board().entrySet().stream()
+                .sorted(java.util.Comparator.comparing(entry -> entry.getKey().toString())).toList();
+        for (int i = 0; !pieces.isEmpty() && i < Math.max(12, pieces.size()); i++) {
+            var entry = pieces.get(i % pieces.size());
+            double time = elapsed - i * .09;
+            if (time < 0) continue;
+            double direction = i % 2 == 0 ? 1 : -1;
+            for (int trail = 4; trail >= 0; trail--) {
+                double t = Math.max(0, time - trail * .06);
+                double width = size.width * 7.0;
+                double rawX = entry.getKey().file() * size.width + direction * (15 + i % 5 * 4) * t;
+                double wrapped = ((rawX % (2 * width)) + 2 * width) % (2 * width);
+                double x = wrapped > width ? 2 * width - wrapped : wrapped;
+                double y = (size.height * 7) - Math.abs(Math.sin(t * 2.4 + i * .45)) * size.height * (3 + i % 4);
+                piece(frame, (int) x, (int) y, entry.getValue(), trail == 0 ? 1 : .15);
+            }
+        }
+        String result = state.status() == GameStatus.CHECKMATE
+                ? " WYGRYWAJA " + sideName(state.sideToMove().opposite()).toUpperCase(java.util.Locale.ROOT) + "! " : " REMIS! ";
+        frame.text(LEFT + size.width * 4 - result.length() / 2, TOP + size.height * 4, result);
+        frame.text(LEFT, TOP + size.height * 8 + 3, "Dobra partia! Efekt jak w pasjansie. Pomin: skip | Rewanz: new");
+        return frame;
+    }
+
     private List<Travel> travels(GameState before, GameState after, Move move) {
         List<Travel> result = new ArrayList<>();
         result.add(new Travel(move.from(), move.to(), before.board().get(move.from())));
@@ -125,7 +151,13 @@ final class AsciiBoard {
             case CHECK -> "SZACH! Ruch: " + sideName(state.sideToMove());
             case CHECKMATE -> "MAT! Wygrywaja " + sideName(state.sideToMove().opposite()) + ".";
             case STALEMATE -> "PAT. Remis.";
+            case DRAW_REPETITION -> "REMIS: trzykrotne powtorzenie pozycji.";
+            case DRAW_FIFTY_MOVES -> "REMIS: regula 50 posuniec.";
+            case DRAW_INSUFFICIENT_MATERIAL -> "REMIS: niewystarczajacy material do mata.";
+            case DRAW_FIVEFOLD_REPETITION -> "REMIS: pieciokrotne powtorzenie pozycji.";
+            case DRAW_SEVENTY_FIVE_MOVES -> "REMIS: regula 75 posuniec.";
         };
+        if (state.canClaimDraw()) status += " | Mozesz zglosic remis: draw";
         if (!state.moveHistory().isEmpty()) {
             Move last = state.moveHistory().getLast();
             status += "    Ostatni ruch: " + last.from() + "-" + last.to()

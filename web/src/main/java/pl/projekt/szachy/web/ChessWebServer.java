@@ -104,7 +104,8 @@ public final class ChessWebServer implements AutoCloseable {
                 session.game.getLegalMoves(square(from)).forEach(move -> moves.add(GameJson.move(move)));
                 response.add("moves", moves);
                 json(exchange, 200, response);
-            } else if (parts[4].equals("moves") || parts[4].equals("reset") || parts[4].equals("retry")) {
+            } else if (parts[4].equals("moves") || parts[4].equals("reset") || parts[4].equals("retry")
+                    || parts[4].equals("claim-draw")) {
                 requireMethod(method, "POST");
                 JsonObject request = body(exchange);
                 String revision = required(request, "revision", false);
@@ -122,6 +123,14 @@ public final class ChessWebServer implements AutoCloseable {
                 if (parts[4].equals("retry")) {
                     session.game.retryComputer();
                     json(exchange, 200, session.snapshot());
+                    return;
+                }
+                if (parts[4].equals("claim-draw")) {
+                    boolean claimed = session.game.claimDraw();
+                    JsonObject response = claimed ? session.snapshot()
+                            : errorJson("DRAW_UNAVAILABLE", "W tej pozycji nie można zgłosić remisu.");
+                    if (!claimed) response.add("state", session.snapshot());
+                    json(exchange, claimed ? 200 : 422, response);
                     return;
                 }
                 PieceType promotion = null;

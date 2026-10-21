@@ -2,6 +2,8 @@ import React, { useEffect, useId, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { api } from './api';
 import { initialPieces, movingPieces, finishPieces } from './animation';
+import { finished, resultLabel } from './gameStatus';
+import { EndCelebration } from './EndCelebration';
 import './style.css';
 
 const STORAGE = 'szachy.web.game.v1';
@@ -12,7 +14,6 @@ const DEFAULT_OPTIONS = { opponent: 'TWO_PLAYERS', difficulty: 'MEDIUM', humanSi
 const file = square => square.charCodeAt(0) - 97;
 const rank = square => Number(square[1]) - 1;
 const image = piece => `/pieces/${piece.side.toLowerCase()}_${piece.type.toLowerCase()}.png`;
-const finished = game => game && ['CHECKMATE', 'STALEMATE'].includes(game.status);
 const computerTurn = game => game?.opponent === 'COMPUTER' && game.sideToMove !== game.humanSide && !finished(game);
 
 function Icon({ name, ...props }) {
@@ -38,7 +39,7 @@ function Modal({ title, onClose, children }) {
   </dialog>;
 }
 
-function Board({ game, tokens, selected, moves, onSquare, flipped, blocked }) {
+function Board({ game, tokens, selected, moves, onSquare, flipped, blocked, showResult }) {
   const buttons = useRef([]);
   const destinations = new Set(moves.map(move => move.to));
   const occupants = new Map((game?.board || []).map(piece => [piece.square, piece]));
@@ -81,6 +82,7 @@ function Board({ game, tokens, selected, moves, onSquare, flipped, blocked }) {
       })}
     </div>
     {!game && <div className="loading-overlay"><span className="spinner" /> Przygotowujemy planszę…</div>}
+    {showResult && <EndCelebration key={`${game.id}-${game.revision}`} game={game} flipped={flipped} />}
   </div>;
 }
 
@@ -215,7 +217,7 @@ function App() {
             setNotice(`Stockfish: ${move.from} → ${move.to}.`);
             presentMove(before, next, move, ++operation.current);
           } else install(next);
-        } else {
+        } else if (next.computerThinking !== before.computerThinking || next.computerError !== before.computerError) {
           gameRef.current = next;
           setGame(next);
         }
@@ -351,9 +353,20 @@ function App() {
     finally { if (sequence === operation.current) { busy.current = false; setPhase('idle'); } }
   }
 
-  const status = !game ? 'Chwila na rozstawienie figur' : game.status === 'CHECKMATE'
-    ? `Wygrywają ${SIDE[game.sideToMove === 'WHITE' ? 'BLACK' : 'WHITE']}`
-    : game.status === 'STALEMATE' ? 'Pat. Dzielicie się remisem.' : `Ruch ${game.sideToMove === 'WHITE' ? 'białych' : 'czarnych'}`;
+  async function claimDraw() {
+    if (busy.current || computerTurn(gameRef.current)) return;
+    const sequence = ++operation.current;
+    busy.current = true;
+    setPhase('requesting');
+    try {
+      const current = gameRef.current;
+      const next = await api(`/games/${current.id}/claim-draw`, { revision: current.revision });
+      if (sequence === operation.current) { install(next); setNotice('Remis został zgłoszony.'); }
+    } catch (error) { if (sequence === operation.current) failure(error); }
+    finally { if (sequence === operation.current) { busy.current = false; setPhase('idle'); } }
+  }
+
+  const status = resultLabel(game);
   const captures = side => (game?.capturedPieces || []).filter(piece => piece.side === side);
   const rows = Array.from({ length: Math.ceil((game?.history.length || 0) / 2) }, (_, index) => game.history.slice(index * 2, index * 2 + 2));
   const notation = move => move ? <>{move.from}<span className="move-arrow">→</span>{move.to}{move.promotion && <small>={NAMES[move.promotion]}</small>}</> : <span className="muted">—</span>;
@@ -370,7 +383,7 @@ function App() {
     <main className="game-layout">
       <section className="board-section" aria-label="Plansza i gracze">
         <Player side={flipped ? 'WHITE' : 'BLACK'} game={game} position="Po drugiej stronie planszy" />
-        <div className="board-frame"><Board game={game} tokens={tokens} selected={selected} moves={moves} onSquare={choose} flipped={flipped} blocked={phase !== 'idle' || !!fault || !!promotion || finished(game) || computerTurn(game)} /></div>
+        <div className="board-frame"><Board game={game} tokens={tokens} selected={selected} moves={moves} onSquare={choose} flipped={flipped} blocked={phase !== 'idle' || !!fault || !!promotion || finished(game) || computerTurn(game)} showResult={finished(game) && phase === 'idle'} /></div>
         <Player side={flipped ? 'BLACK' : 'WHITE'} game={game} position="Po tej stronie planszy" />
         <div className="board-footer"><span>Kliknij figurę, potem pole docelowe.</span><button className="text-button" onClick={() => setFlipped(!flipped)} disabled={phase !== 'idle'}><Icon name="flip" /> Obróć planszę</button></div>
       </section>
@@ -395,6 +408,7 @@ function App() {
         <section className="captures-card panel"><h2>Poza planszą</h2>{['WHITE', 'BLACK'].map(side => <div className="captured-group" key={side}><span>Zbite {SIDE[side]}</span><div>{captures(side).length ? captures(side).map((piece, index) => <img key={index} src={image(piece)} alt={`${NAMES[piece.type]}, ${SIDE[piece.side]}`} />) : <span className="muted">Jeszcze żadna figura</span>}</div></div>)}</section>
 
         <button className="new-game" disabled={!game || phase === 'requesting' || phase === 'loading'} onClick={() => setConfirmReset(true)}><Icon name="new" /> Nowa partia</button>
+        {game?.canClaimDraw && !computerTurn(game) && <button className="new-game" disabled={phase !== 'idle'} onClick={claimDraw}>Zgłoś remis</button>}
         <p className="session-note">Partia zostanie po odświeżeniu strony.<br />Możecie grać, dopóki aplikacja jest otwarta.</p>
       </aside>
     </main>

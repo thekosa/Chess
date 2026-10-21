@@ -19,6 +19,8 @@ final class ConsoleGame {
     private Square selected;
     private Set<Square> targets = Set.of();
     private GameState displayedState;
+    private GameState celebrated;
+    private long celebrationStart;
     private String message = "Wpisz e2, aby zaznaczyc pionka, potem e4, aby go przesunac.";
 
     ConsoleGame(GameApi game, TerminalScreen screen,
@@ -55,6 +57,7 @@ final class ConsoleGame {
     }
 
     private void command(String line) throws InterruptedException {
+        celebrationStart = 0;
         if (line.isEmpty()) {
             return;
         }
@@ -80,7 +83,13 @@ final class ConsoleGame {
                     throw new IllegalArgumentException("Rozmiary: full, compact, small, tiny.");
                 }
             }
-            case "help" -> message = "e2 e4; e7 e8 q/r/b/n; new; computer easy/medium/hard [white/black]; local; retry; quit.";
+            case "help" -> message = "e2 e4; e7 e8 q/r/b/n; new; computer easy/medium/hard [white/black]; local; retry; draw; skip; quit.";
+            case "draw" -> {
+                requireCount(parts, 1);
+                message = game.claimDraw() ? "Remis zostal zgloszony." : "W tej pozycji nie mozna zglosic remisu.";
+                clearSelection();
+            }
+            case "skip" -> { requireCount(parts, 1); message = "Efekt pominiety. Nowa partia: new."; }
             case "retry" -> {
                 requireCount(parts, 1);
                 if (game instanceof ComputerGame computer) computer.retryComputer();
@@ -172,6 +181,12 @@ final class ConsoleGame {
             displayedState = state;
         }
         board.fitToViewport(columns, rows);
+        if (!state.status().isFinished()) celebrated = null;
+        else if (animate && !Boolean.getBoolean("chess.reducedMotion")) {
+            if (celebrated != state) { celebrated = state; celebrationStart = System.nanoTime(); }
+            double elapsed = (System.nanoTime() - celebrationStart) / 1e9;
+            if (elapsed < 6.5) return board.celebrationFrame(state, elapsed, message);
+        }
         String footer = message;
         if (game instanceof ComputerGame computer) {
             var snapshot = computer.snapshot();

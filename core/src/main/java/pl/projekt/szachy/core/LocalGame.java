@@ -11,6 +11,7 @@ import java.util.Objects;
 /** Owns a single local game. All commands are validated here, independently of the UI. */
 public final class LocalGame implements GameApi {
     private GameState state;
+    private final Map<ChessRules.PositionKey, Integer> repetitions = new HashMap<>();
 
     public LocalGame() {
         newGame();
@@ -19,6 +20,7 @@ public final class LocalGame implements GameApi {
     /** Package-local position setup for rule verification. */
     LocalGame(GameState position) {
         state = ChessRules.updateStatus(Objects.requireNonNull(position));
+        repetitions.put(ChessRules.positionKey(state), state.repetitionCount());
     }
 
     @Override
@@ -41,6 +43,8 @@ public final class LocalGame implements GameApi {
         }
         state = new GameState(board, Side.WHITE, CastlingRights.ALL, null,
                 GameStatus.ACTIVE, List.of(), List.of());
+        repetitions.clear();
+        repetitions.put(ChessRules.positionKey(state), 1);
         return state;
     }
 
@@ -69,7 +73,15 @@ public final class LocalGame implements GameApi {
                     .anyMatch(candidate -> candidate.to().equals(move.to()) && candidate.promotion() != null);
             return new MoveResult(promotionNeeded ? MoveError.PROMOTION_REQUIRED : MoveError.ILLEGAL_MOVE, state);
         }
-        state = ChessRules.updateStatus(ChessRules.apply(state, move, true));
+        GameState next = ChessRules.apply(state, move, true);
+        int count = repetitions.merge(ChessRules.positionKey(next), 1, Integer::sum);
+        state = ChessRules.updateStatus(next.withRepetitionCount(count));
         return new MoveResult(MoveError.NONE, state);
+    }
+
+    @Override public boolean claimDraw() {
+        if (!state.canClaimDraw()) return false;
+        state = state.withStatus(state.repetitionCount() >= 3 ? GameStatus.DRAW_REPETITION : GameStatus.DRAW_FIFTY_MOVES);
+        return true;
     }
 }

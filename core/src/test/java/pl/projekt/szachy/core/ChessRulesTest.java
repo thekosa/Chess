@@ -91,7 +91,7 @@ class ChessRulesTest {
 
     @Test
     void kingCannotEnterEnemyKingOrBishopAttacks() {
-        LocalGame game = game(Side.WHITE, "wKd4", "bKf4", "bBg6");
+        LocalGame game = game(Side.WHITE, "wKd4", "bKf4", "bBg6", "wPa2");
         assertEquals(squares("c3", "c4", "c5", "d5"), targets(game, "d4"));
     }
 

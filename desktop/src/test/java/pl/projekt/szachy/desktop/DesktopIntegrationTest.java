@@ -77,6 +77,35 @@ class DesktopIntegrationTest {
     }
 
     @Test
+    void solitaireCelebrationCanBeSkippedAndResetWithoutChangingTheGame() throws Exception {
+        onFxThread(() -> {
+            LocalGame game = new LocalGame();
+            BoardView board = new BoardView(square -> { });
+            new Scene(board, 668, 668);
+            board.resize(668, 668);
+            GameState finished = game.getState().withStatus(GameStatus.CHECKMATE);
+            board.render(finished, null, Set.of());
+            board.applyCss();
+            board.layout();
+            waitFx(Duration.millis(350));
+            Node effect = board.lookup("#end-celebration");
+            assertTrue(effect.isVisible());
+            savePreview(board, "celebration-preview.png");
+            ((Button) board.lookup("#skip-celebration")).fire();
+            assertFalse(effect.isVisible());
+            board.render(finished, null, Set.of());
+            assertFalse(effect.isVisible(), "Redrawing must not replay a dismissed effect");
+            board.render(game.newGame(), null, Set.of());
+            assertFalse(effect.isVisible());
+            assertEquals(32, game.getState().board().size());
+            board.render(game.getState().withStatus(GameStatus.DRAW_REPETITION), null, Set.of());
+            assertTrue(effect.isVisible());
+            board.close();
+            assertFalse(effect.isVisible());
+        });
+    }
+
+    @Test
     void loadsAllResourcesAndRendersOnlyTheStateReturnedByTheApi() throws Exception {
         FutureTask<Void> check = new FutureTask<>(() -> {
             StubGame api = new StubGame();

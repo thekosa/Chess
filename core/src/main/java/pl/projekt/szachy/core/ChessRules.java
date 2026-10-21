@@ -242,7 +242,8 @@ final class ChessRules {
             }
         }
         return new GameState(board, piece.side().opposite(), rights, enPassant,
-                GameStatus.ACTIVE, history, captures);
+                GameStatus.ACTIVE, history, captures,
+                piece.type() == PieceType.PAWN || captured != null ? 0 : state.halfmoveClock() + 1, 1);
     }
 
     static GameState updateStatus(GameState state) {
@@ -250,8 +251,39 @@ final class ChessRules {
         boolean hasMove = state.board().entrySet().stream()
                 .filter(entry -> entry.getValue().side() == state.sideToMove())
                 .anyMatch(entry -> !legalMoves(state, entry.getKey()).isEmpty());
-        return state.withStatus(hasMove ? (check ? GameStatus.CHECK : GameStatus.ACTIVE)
-                : (check ? GameStatus.CHECKMATE : GameStatus.STALEMATE));
+        // A mate on the final move takes precedence over the 75-move rule.
+        if (!hasMove) return state.withStatus(check ? GameStatus.CHECKMATE : GameStatus.STALEMATE);
+        if (insufficientMaterial(state.board())) return state.withStatus(GameStatus.DRAW_INSUFFICIENT_MATERIAL);
+        if (state.halfmoveClock() >= 150) return state.withStatus(GameStatus.DRAW_SEVENTY_FIVE_MOVES);
+        if (state.repetitionCount() >= 5) return state.withStatus(GameStatus.DRAW_FIVEFOLD_REPETITION);
+        return state.withStatus(check ? GameStatus.CHECK : GameStatus.ACTIVE);
+    }
+
+    record PositionKey(Map<Square, Piece> board, Side side, CastlingRights rights, Square enPassant) { }
+
+    static PositionKey positionKey(GameState state) {
+        Square effectiveEnPassant = null;
+        if (state.enPassantTarget() != null) {
+            // An unavailable or pinned en-passant capture does not distinguish positions.
+            boolean capturable = state.board().entrySet().stream()
+                    .filter(entry -> entry.getValue().side() == state.sideToMove()
+                            && entry.getValue().type() == PieceType.PAWN)
+                    .anyMatch(entry -> legalMoves(state, entry.getKey()).stream()
+                            .anyMatch(move -> move.to().equals(state.enPassantTarget())
+                                    && move.from().file() != move.to().file()));
+            if (capturable) effectiveEnPassant = state.enPassantTarget();
+        }
+        return new PositionKey(state.board(), state.sideToMove(), state.castlingRights(), effectiveEnPassant);
+    }
+
+    private static boolean insufficientMaterial(Map<Square, Piece> board) {
+        var pieces = board.entrySet().stream().filter(entry -> entry.getValue().type() != PieceType.KING).toList();
+        if (pieces.isEmpty()) return true;
+        if (pieces.size() == 1) return pieces.getFirst().getValue().type() == PieceType.BISHOP
+                || pieces.getFirst().getValue().type() == PieceType.KNIGHT;
+        if (pieces.stream().anyMatch(entry -> entry.getValue().type() != PieceType.BISHOP)) return false;
+        int color = (pieces.getFirst().getKey().file() + pieces.getFirst().getKey().rank()) % 2;
+        return pieces.stream().allMatch(entry -> (entry.getKey().file() + entry.getKey().rank()) % 2 == color);
     }
 
     private static Square offset(Square from, int df, int dr) {

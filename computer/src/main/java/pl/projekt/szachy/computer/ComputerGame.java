@@ -46,7 +46,7 @@ public final class ComputerGame implements GameApi, AutoCloseable {
         if (closed || isComputerTurn()) return new MoveResult(MoveError.WRONG_SIDE, game.getState());
         MoveResult result = game.makeMove(move);
         if (result.applied()) { revision++; schedule(); }
-        return result;
+        return new MoveResult(result.error(), game.getState());
     }
     @Override public synchronized GameState newGame() { return configure(options); }
     public synchronized GameState configure(GameOptions options) {
@@ -61,8 +61,14 @@ public final class ComputerGame implements GameApi, AutoCloseable {
     public synchronized void retryComputer() {
         if (!closed && !thinking && isComputerTurn()) schedule();
     }
+    @Override public synchronized boolean claimDraw() {
+        if (closed || isComputerTurn() || !game.claimDraw()) return false;
+        revision++;
+        return true;
+    }
     private void schedule() {
         if (closed || !isComputerTurn()) return;
+        if (game.claimDraw()) { revision++; return; }
         GameState position = game.getState();
         Difficulty difficulty = options.difficulty();
         long ticket = generation;

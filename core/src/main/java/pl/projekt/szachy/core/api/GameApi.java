@@ -16,4 +16,7 @@ public interface GameApi {
     List<Move> getLegalMoves(Square from);
 
     MoveResult makeMove(Move move);
+
+    /** Claims a draw in the current position; false leaves the game unchanged. */
+    default boolean claimDraw() { return false; }
 }

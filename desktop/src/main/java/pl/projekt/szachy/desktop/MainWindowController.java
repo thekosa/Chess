@@ -38,6 +38,7 @@ public final class MainWindowController implements AutoCloseable {
     @FXML
     private ListView<String> historyList;
     @FXML private Button retryButton;
+    @FXML private Button claimDrawButton;
 
     public MainWindowController(GameApi game) {
         this.game = Objects.requireNonNull(game);
@@ -156,7 +157,16 @@ public final class MainWindowController implements AutoCloseable {
             case CHECK -> "Ruch: " + sideName(state.sideToMove()) + "\nSzach!";
             case CHECKMATE -> "Mat! Wygrywają " + sideName(state.sideToMove().opposite()) + ".";
             case STALEMATE -> "Pat. Remis.";
+            case DRAW_REPETITION -> "Remis: trzykrotne powtórzenie pozycji.";
+            case DRAW_FIFTY_MOVES -> "Remis: reguła 50 posunięć.";
+            case DRAW_INSUFFICIENT_MATERIAL -> "Remis: niewystarczający materiał do mata.";
+            case DRAW_FIVEFOLD_REPETITION -> "Remis: pięciokrotne powtórzenie pozycji.";
+            case DRAW_SEVENTY_FIVE_MOVES -> "Remis: reguła 75 posunięć.";
         });
+        boolean claimAvailable = state.canClaimDraw()
+                && (!(game instanceof ComputerGame computer) || !computer.isComputerTurn());
+        claimDrawButton.setVisible(claimAvailable);
+        claimDrawButton.setManaged(claimAvailable);
         historyList.getItems().clear();
         for (int index = 0; index < state.moveHistory().size(); index++) {
             Move move = state.moveHistory().get(index);
@@ -203,7 +213,18 @@ public final class MainWindowController implements AutoCloseable {
     @FXML private void retryComputer() {
         if (game instanceof ComputerGame computer) { computer.retryComputer(); updateComputer(); }
     }
-    @Override public void close() { if (computerUpdates != null) computerUpdates.stop(); }
+    @FXML private void claimDraw() {
+        if (boardView.isAnimating()) return;
+        if (game.claimDraw()) {
+            clearSelection();
+            render(game.getState());
+            messageLabel.setText("Remis został zgłoszony.");
+        } else messageLabel.setText("W tej pozycji nie można zgłosić remisu.");
+    }
+    @Override public void close() {
+        if (computerUpdates != null) computerUpdates.stop();
+        boardView.close();
+    }
 
     private String captures(GameState state, Side side) {
         String result = Arrays.stream(PieceType.values())

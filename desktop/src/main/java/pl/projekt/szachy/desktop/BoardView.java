@@ -32,6 +32,8 @@ final class BoardView extends StackPane {
     private final MoveAnimator animator = new MoveAnimator(animationLayer);
     private final Map<Square, Button> squares = new HashMap<>();
     private final Map<Square, ImageView> pieceViews = new HashMap<>();
+    private final EndCelebration celebration = new EndCelebration();
+    private GameState celebrated;
 
     BoardView(Consumer<Square> onSquareClick) {
         this.onSquareClick = Objects.requireNonNull(onSquareClick);
@@ -39,7 +41,7 @@ final class BoardView extends StackPane {
         grid.setAlignment(Pos.CENTER);
         animationLayer.setMouseTransparent(true);
         animationLayer.setId("move-animation-layer");
-        getChildren().setAll(grid, animationLayer);
+        getChildren().setAll(grid, animationLayer, celebration);
     }
 
     void render(GameState state, Square selected, Set<Square> destinations) {
@@ -101,11 +103,20 @@ final class BoardView extends StackPane {
         for (int file = 0; file < Square.BOARD_SIZE; file++) {
             grid.add(coordinateLabel(String.valueOf((char) ('a' + file))), file + 1, Square.BOARD_SIZE);
         }
+        if (!state.status().isFinished()) {
+            celebration.close();
+            celebrated = null;
+        } else if (celebrated != state) {
+            celebrated = state;
+            celebration.play(state, piece -> images.computeIfAbsent(piece, this::loadImage));
+        }
     }
 
     boolean isAnimating() {
         return animator.isAnimating();
     }
+
+    void close() { animator.cancel(); celebration.close(); }
 
     ParallelTransition animateMove(GameState before, GameState after, Move move, Runnable finished) {
         render(before, null, Set.of());

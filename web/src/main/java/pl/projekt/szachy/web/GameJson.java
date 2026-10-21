@@ -15,6 +15,9 @@ final class GameJson {
         json.addProperty("revision", revision);
         json.addProperty("sideToMove", state.sideToMove().name());
         json.addProperty("status", state.status().name());
+        json.addProperty("halfmoveClock", state.halfmoveClock());
+        json.addProperty("repetitionCount", state.repetitionCount());
+        json.addProperty("canClaimDraw", state.canClaimDraw());
         JsonArray board = new JsonArray();
         state.board().entrySet().stream().sorted(java.util.Comparator.comparing(entry -> entry.getKey().toString()))
                 .forEach(entry -> {

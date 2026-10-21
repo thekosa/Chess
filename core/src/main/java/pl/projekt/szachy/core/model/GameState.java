@@ -7,7 +7,8 @@ import java.util.Objects;
 /** An immutable snapshot. Empty squares are absent from the board map. */
 public record GameState(Map<Square, Piece> board, Side sideToMove,
                         CastlingRights castlingRights, Square enPassantTarget,
-                        GameStatus status, List<Move> moveHistory, List<Piece> capturedPieces) {
+                        GameStatus status, List<Move> moveHistory, List<Piece> capturedPieces,
+                        int halfmoveClock, int repetitionCount) {
     public GameState {
         board = Map.copyOf(Objects.requireNonNull(board, "board"));
         Objects.requireNonNull(sideToMove, "sideToMove");
@@ -15,6 +16,16 @@ public record GameState(Map<Square, Piece> board, Side sideToMove,
         Objects.requireNonNull(status, "status");
         moveHistory = List.copyOf(Objects.requireNonNull(moveHistory, "moveHistory"));
         capturedPieces = List.copyOf(Objects.requireNonNull(capturedPieces, "capturedPieces"));
+        if (halfmoveClock < 0 || repetitionCount < 1) throw new IllegalArgumentException("Invalid draw counters");
+    }
+
+    public GameState(Map<Square, Piece> board, Side sideToMove, CastlingRights castlingRights,
+                     Square enPassantTarget, GameStatus status, List<Move> moveHistory, List<Piece> capturedPieces) {
+        this(board, sideToMove, castlingRights, enPassantTarget, status, moveHistory, capturedPieces, 0, 1);
+    }
+
+    public boolean canClaimDraw() {
+        return !status.isFinished() && (halfmoveClock >= 100 || repetitionCount >= 3);
     }
 
     /** Custom positions have no inferred right to castle. */
@@ -24,6 +35,11 @@ public record GameState(Map<Square, Piece> board, Side sideToMove,
 
     public GameState withStatus(GameStatus newStatus) {
         return new GameState(board, sideToMove, castlingRights, enPassantTarget,
-                newStatus, moveHistory, capturedPieces);
+                newStatus, moveHistory, capturedPieces, halfmoveClock, repetitionCount);
+    }
+
+    public GameState withRepetitionCount(int count) {
+        return new GameState(board, sideToMove, castlingRights, enPassantTarget,
+                status, moveHistory, capturedPieces, halfmoveClock, count);
     }
 }
