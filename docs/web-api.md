@@ -14,6 +14,7 @@ Polecenia POST wymagają `Content-Type: application/json`; limit treści to 8 Ki
 - `POST /api/games/{id}/moves` — wykonanie ruchu.
 - `POST /api/games/{id}/reset` — reset tej samej sesji do pozycji początkowej.
 - `POST /api/games/{id}/retry` — ponowienie nieudanego ruchu komputera (treść: aktualna `revision`).
+- `POST /api/games/{id}/claim-draw` — zgłoszenie remisu w aktualnej pozycji (treść: aktualna `revision`).
 
 Przykładowe polecenie ruchu:
 
@@ -48,6 +49,9 @@ Przykład utworzenia partii z komputerem:
   "humanSide": "WHITE",
   "computerThinking": false,
   "computerError": null,
+  "halfmoveClock": 0,
+  "repetitionCount": 1,
+  "canClaimDraw": false,
   "board": [{"square":"e2","side":"WHITE","type":"PAWN"}],
   "history": [],
   "capturedPieces": []
@@ -59,6 +63,17 @@ Puste pola nie mają wpisów. Strony to `WHITE` i `BLACK`, rodzaje figur:
 `PAWN`, `KNIGHT`, `BISHOP`, `ROOK`, `QUEEN`, `KING`. Statusy to `ACTIVE`,
 `CHECK`, `CHECKMATE`, `STALEMATE`. Historia ma obiekty `{from,to,promotion}`,
 a zbite figury `{side,type}`. Współrzędne zawsze są wspólne dla obu stron.
+
+Dodatkowe końcowe statusy remisów: `DRAW_REPETITION`, `DRAW_FIFTY_MOVES`,
+`DRAW_INSUFFICIENT_MATERIAL`, `DRAW_FIVEFOLD_REPETITION`, `DRAW_SEVENTY_FIVE_MOVES`.
+W każdym końcowym stanie klient blokuje dalsze ruchy i może pokazać efekt końca partii.
+`halfmoveClock` to półruchy bez bicia/ruchu pionem, `repetitionCount` liczy
+wystąpienia aktualnej pozycji. `canClaimDraw` dotyczy strony na ruchu; w grze
+z komputerem człowiek nie zgłasza remisu za komputer.
+
+Udane `/claim-draw` zwraca HTTP 200 i nowy stan oraz zwiększa rewizję bez
+zmiany historii ruchów. Niedostępny remis: HTTP 422, kod `DRAW_UNAVAILABLE`
+i pełny bieżący `state`. Zgłoszenie dotyczy obecnej pozycji, bez zapowiadania ruchu.
 
 Zapytanie o ruchy zwraca rewizję pozycji, dla której je wyznaczono:
 

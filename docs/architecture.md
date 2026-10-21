@@ -49,7 +49,8 @@ Pozostałe figury używają tych samych kierunków dla obu kolorów.
 JavaFX przelicza rząd na wiersz ekranu, aby białe znajdowały się na dole.
 
 `GameState` zawiera również stronę na ruchu, prawa do roszady, pole bicia
-w przelocie, status partii, historię ruchów i zbite figury.
+w przelocie, status partii, historię ruchów, zbite figury, licznik półruchów
+bez bicia/ruchu pionem i liczbę wystąpień aktualnej pozycji.
 Wszystkie kolekcje oraz ich elementy są niezmienne.
 Każda sesja ma własny obiekt `LocalGame`. Adapter HTTP szereguje żądania
 do jednej partii przez synchronizację na `ComputerGame`, wspólną również z
@@ -97,6 +98,29 @@ odsłonięcie króla po biciu w przelocie.
 Roszada wymaga praw do niej, właściwej wieży, pustej drogi i bezpiecznej
 drogi króla. Ruch króla lub wieży i zbicie wieży usuwają właściwe prawa.
 Król pozostaje na planszy; zakończenie partii rozstrzyga mat lub pat.
+
+## Remisy
+
+`LocalGame` przechowuje mapę wystąpień pozycji. Klucz zawiera planszę, stronę,
+prawa do roszady i pole en passant tylko wtedy, gdy istnieje legalne bicie
+(także po uwzględnieniu związania piona). Pierwsza pozycja liczy się jako
+pierwsze wystąpienie; reset czyści mapę i licznik półruchów.
+
+`GameState.canClaimDraw()` sygnalizuje trzecią powtórzoną pozycję lub 100
+półruchów. `GameApi.claimDraw()` zatwierdza remis w aktualnej pozycji i nie
+dopisuje fikcyjnego ruchu. Zgłoszenie przez zapowiedź przyszłego ruchu nie jest
+jeszcze obsługiwane. Przy 5 wystąpieniach lub 150 półruchach remis jest automatyczny.
+Mat w ostatnim ruchu ma pierwszeństwo przed limitem 75 posunięć.
+
+Niewystarczający materiał obejmuje K–K, K+B–K, K+N–K i pozycje z samymi
+królami oraz gońcami wyłącznie na polach tego samego koloru. Dwa skoczki,
+różnopolowe gońce lub skoczki obu stron nie są automatycznie uznawane za remis.
+Ogólne wykrywanie każdej możliwej martwej pozycji (np. z zablokowanymi pionami)
+pozostaje poza zakresem tej wersji.
+
+`ComputerGame` przyjmuje zgłoszenia człowieka wyłącznie w jego kolejce.
+Komputer zgłasza dostępny remis przed rozpoczęciem obliczeń. Każde udane
+zgłoszenie zwiększa rewizję, ale zachowuje historię ruchów bez zmian.
 
 ## Interfejs
 
@@ -183,6 +207,19 @@ zbicie pionka z sąsiedniego pola. Pionek zmienia rysunek po dojściu do pola
 promocji. Te identyfikatory i ścieżki nie są regułami gry. Ustawienie systemowe
 ograniczania animacji wyłącza przejścia. Nowa partia anuluje pozostałe klatki
 poprzedniego ruchu.
+
+## Efekty zakończenia
+
+JavaFX (`EndCelebration`) i React (`EndCelebration.jsx`) rysują figury z grawitacją,
+odbiciami i kolorowymi smugami w osobnej warstwie Canvas. Konsola używa
+`AsciiBoard.celebrationFrame` i tego samego mechanizmu odświeżania co zwykłe ruchy.
+Efekty startują po zatwierdzonym zakończeniu i zakończeniu animacji ostatniego
+ruchu, trwają maksymalnie 6,5 s, pozwalają na pominięcie i są anulowane przez reset.
+Nie blokują rozpoczęcia nowej partii i nie modyfikują modelu gry.
+
+Przeglądarka respektuje `prefers-reduced-motion`; JavaFX i konsola przyjmują
+`-Dchess.reducedMotion=true`. Statyczny komunikat wyniku pozostaje dostępny
+również bez efektu. Ponowne odrysowanie stanu nie odtwarza pominiętej animacji.
 
 Ta wersja udostępnia lokalną partię dwóch osób lub grę przeciwko Stockfishowi.
 Do gry sieciowej potrzeba dodatkowo tożsamości i kolorów graczy,

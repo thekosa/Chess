@@ -59,7 +59,8 @@ przeciwnika oznacza możliwe bicie. Kolejne ruchy wykonują naprzemiennie
 białe i czarne. Przy promocji pionka wybierz hetmana, wieżę, gońca lub skoczka.
 
 Silnik sprawdza ruchy wszystkich figur, przeszkody, bicie, bezpieczeństwo
-króla, roszadę, bicie w przelocie oraz promocję. Rozpoznaje szacha, mata i pata.
+króla, roszadę, bicie w przelocie oraz promocję. Rozpoznaje szacha, mata, pata
+i typowe pozycje z niewystarczającym materiałem do mata.
 Interfejs wyświetla historię ruchów, zbite figury i wynik zakończonej partii.
 „Nowa gra” pozwala wybrać przeciwnika i resetuje pozycję, kolejkę, historię, zbicia i zaznaczenie.
 Wszystkie dane planszy i decyzje o legalności ruchu pochodzą z silnika.
@@ -88,9 +89,23 @@ W projekcie cache jest w ignorowanym `.tools/stockfish`; dla przeniesionej aplik
 w `~/.cache/szachy/stockfish`. Własny plik silnika można wskazać zmienną
 `CHESS_STOCKFISH_PATH`. Szczegóły: [docs/stockfish.md](docs/stockfish.md).
 
-Zapis i wczytywanie, cofanie ruchów oraz dodatkowe reguły remisów
-(powtórzenia, licznik posunięć i niewystarczający materiał) pozostają
-do kolejnych etapów.
+Po trzykrotnym powtórzeniu pozycji lub 50 posunięciach obu stron bez bicia
+i ruchu pionem można użyć **Zgłoś remis** (w konsoli `draw`). Zgłoszenie dotyczy
+aktualnej pozycji. Pięciokrotne powtórzenie i 75 posunięć kończą partię
+automatycznie; mat w ostatnim ruchu ma pierwszeństwo. Stockfish zgłasza
+dostępny remis na początku swojej kolejki. Licznik zeruje się po biciu lub ruchu
+pionem. Powtórzenia uwzględniają stronę na ruchu, prawa do roszady i faktyczną
+możliwość legalnego bicia w przelocie. Progi odpowiadają
+[artykułowi 9 przepisów FIDE](https://handbook.fide.com/chapter/e012023).
+
+Zakończenie partii uruchamia krótki efekt w stylu klasycznego pasjansa:
+odbijające się figury ze smugami i planszę wyniku. W oknie i Web kliknij
+**Pomiń efekt**, w konsoli wpisz `skip`. Efekt trwa około 6,5 sekundy;
+nowa partia go anuluje i przywraca planszę. W przeglądarce respektuje systemowe
+ograniczenie animacji; w JavaFX/konsoli można użyć opcji JVM `-Dchess.reducedMotion=true`.
+Animacje nie zmieniają stanu partii.
+
+Zapis i wczytywanie oraz cofanie ruchów pozostają do kolejnych etapów.
 
 ## Wersja webowa
 
@@ -164,6 +179,7 @@ Polecenia:
 - `computer easy`, `computer medium`, `computer hard black` — nowa partia z komputerem;
   opcjonalny kolor `white` lub `black` (domyślnie biały).
 - `local` — nowa partia dwóch osób; `retry` — ponowienie nieudanego ruchu komputera.
+- `draw` — zgłoszenie dostępnego remisu; `skip` — pominięcie efektu zakończenia.
 
 Z okna wyboru na Windows uruchamiany jest PowerShell z obsługą ANSI.
 JLine odczytuje rzeczywistą wielkość terminala, a gra na bieżąco dopasowuje
@@ -215,3 +231,14 @@ wykonanie ruchu, bicie, mata, klatki animacji i reset partii w trakcie ruchu.
 Zapisują podglądy w
 `desktop/target/board-preview.png`, `legal-moves-preview.png`
 oraz `capture-preview.png` i `capture-animation-preview.png`.
+
+Opcjonalne testy z prawdziwym Stockfishem (mogą pobrać silnik, jeśli nie jest
+jeszcze zainstalowany):
+
+```powershell
+.\mvnw.cmd -Dchess.stockfish.tests=true -Dchess.gui.tests=true verify
+```
+
+Sprawdzają wszystkie poziomy, start czarnymi, legalność odpowiedzi i anulowanie
+obliczeń po resecie. Testy JavaFX zapisują także `desktop/target/celebration-preview.png`.
+Testy kodu statusów React: w `web/frontend` uruchom `npm test`.
