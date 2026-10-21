@@ -267,3 +267,13 @@ jeszcze zainstalowany):
 Sprawdzają wszystkie poziomy, start czarnymi, legalność odpowiedzi i anulowanie
 obliczeń po resecie. Testy JavaFX zapisują także `desktop/target/celebration-preview.png`.
 Testy kodu statusów React: w `web/frontend` uruchom `npm test`.
+
+### Osadzanie gry w portfolio
+
+Na hostingu ustaw `CHESS_ALLOWED_ORIGINS` na adresy samej aplikacji gry,
+np. `https://szachy.michalkosieradzki.pl,https://chess-gpo7.onrender.com`.
+Żeby umożliwić iframe z portfolio, ustaw osobno `CHESS_FRAME_ANCESTORS` na
+`https://michalkosieradzki.pl,https://www.michalkosieradzki.pl`.
+Lista przyjmuje dokładne originy HTTP/HTTPS rozdzielone przecinkami, bez wildcardów.
+Pusta lub nieustawiona lista blokuje osadzanie. Ustawienie nie otwiera CORS ani API
+dla stron osadzających — iframe nadal komunikuje się z własnym serwerem.

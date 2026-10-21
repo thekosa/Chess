@@ -26,10 +26,16 @@ public final class ChessWebServer implements AutoCloseable {
     private final Rooms rooms = new Rooms();
     private final Set<String> allowedOrigins;
     private final String bindHost;
+    private final String frameAncestors;
     private final AtomicBoolean closed = new AtomicBoolean();
 
     private ChessWebServer(WebConfig config) throws IOException {
         bindHost = config.host();
+        String configuredFrames = System.getenv().getOrDefault("CHESS_FRAME_ANCESTORS", "");
+        String frameOrigins = java.util.Arrays.stream(configuredFrames.split(","))
+                .map(String::strip).filter(value -> !value.isEmpty())
+                .map(WebConfig::origin).distinct().collect(java.util.stream.Collectors.joining(" "));
+        frameAncestors = frameOrigins.isEmpty() ? "'none'" : frameOrigins;
         if (ChessWebServer.class.getResource("/public/index.html") == null) {
             throw new IOException("Brakuje frontendu. W web/frontend uruchom npm ci i npm run build.");
         }
@@ -264,7 +270,7 @@ public final class ChessWebServer implements AutoCloseable {
                     ? "public, max-age=31536000, immutable" : "no-cache");
             exchange.getResponseHeaders().set("Content-Security-Policy",
                     "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
-                            + "img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'");
+                            + "img-src 'self' data:; connect-src 'self'; frame-ancestors " + frameAncestors + "; base-uri 'none'");
             byte[] bytes = input.readAllBytes();
             exchange.sendResponseHeaders(200, method.equals("HEAD") ? -1 : bytes.length);
             if (!method.equals("HEAD")) {
