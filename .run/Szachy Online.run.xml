@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Szachy Online" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="pl.projekt.szachy.web.WebMain" />
+    <module name="chess-web" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="PROGRAM_PARAMETERS" value="--port=8080" />
+    <method v="2"><option name="Make" enabled="true" /></method>
+  </configuration>
+</component>

@@ -1,6 +1,6 @@
 # Szachy
 
-Projekt rozpoczęty na zajęciach JTP. Gra dla dwóch osób lub przeciwko komputerowi,
+Projekt rozpoczęty na zajęciach JTP. Gra lokalna, online dla dwóch osób lub przeciwko komputerowi,
 z niezależnym silnikiem oraz interfejsami JavaFX, ASCII w terminalu i React w przeglądarce.
 
 ## Uruchamianie
@@ -31,7 +31,8 @@ Na początku pojawia się okno wyboru trybu: **Graficzny**, **Konsola ASCII**
 oraz **Web**. Tryb graficzny otwiera obecną planszę, konsolowy uruchamia
 osobne okno terminala, a webowy otwiera grę w domyślnej przeglądarce.
 Konfiguracje IntelliJ **Szachy ASCII** i **Szachy Web** od razu wybierają
-odpowiedni tryb. Po dodaniu modułów `console`, `web` i `computer` należy odświeżyć
+odpowiedni tryb. Konfiguracja **Szachy Online** uruchamia serwer z lobby na porcie 8080.
+Po dodaniu modułów `console`, `web`, `computer` i `network` należy odświeżyć
 projekt Maven w IntelliJ (**Reload All Maven Projects**).
 
 Można też otworzyć `desktop/src/main/java/pl/projekt/szachy/desktop/Launcher.java`
@@ -46,10 +47,32 @@ projekt Maven w IDE.
 
 - `core` — stan partii i publiczne API, bez zależności od JavaFX, Swinga lub AWT.
 - `computer` — wspólna obsługa przeciwnika Stockfish, ustawień partii i obliczeń w tle.
+- `network` — klient HTTP implementujący `GameApi`, wykorzystywany przez konsolę online.
 - `console` — rysowane figury ASCII, kolory i animacje; korzysta z silnika i JLine.
 - `web` — adapter HTTP silnika i gotowy frontend React; działa również bez JavaFX.
 - `desktop` — interfejs JavaFX oraz okno wyboru trzech trybów.
 - `docs/architecture.md` — kontrakt i zasady dalszego rozwoju.
+
+## Gra online i lista pokoi
+
+Na branchu `online` dostępne są tworzenie pokoi, publiczna lista i gra dwóch
+osób z różnych komputerów. Serwer przypisuje kolory i wpuszcza maksymalnie
+dwóch graczy do pokoju. Jedna osoba może grać w Web, druga w konsoli.
+
+W IntelliJ uruchom **Szachy Online** i otwórz `http://localhost:8080/`.
+Wpisz nick, utwórz pokój lub wybierz wolny z listy. Zaproszenie kopiuje link
+do tego pokoju. Odświeżenie przeglądarki odzyskuje własne miejsce; trzecia
+osoba nie może dołączyć. Rewanż wymaga zgody obu graczy i zamienia kolory.
+Opuszczenie pokoju zamyka go dla obu stron. Same rozłączenia nie zwalniają
+miejsca dla innego gracza.
+
+Z istniejącej lokalnej gry webowej do lobby prowadzi przycisk **Pokoje online**.
+Wybór **Konsola online…** w oknie startowym pyta o adres serwera i pokazuje
+listę pokoi w terminalu. Dotychczasowe tryby lokalne i Stockfish pozostają dostępne.
+
+Do wystawienia gry na stronie przygotowane są `Dockerfile`, `compose.yaml`
+oraz Caddy z HTTPS. Szczegóły uruchomienia w sieci lokalnej, konsoli, na VPS
+i pod własną domeną: **[docs/online.md](docs/online.md)**.
 
 ## Gra
 
@@ -126,8 +149,7 @@ ruchy przez API HTTP; sam nie podejmuje decyzji o legalności posunięcia.
 Partia jest przywracana po odświeżeniu tej samej karty, dopóki serwer działa
 i sesja nie wygasła (2 godziny bezczynności). Nowa karta ma własną partię.
 Zapis jest w pamięci serwera; jego restart usuwa partie. Można grać
-z komputerem lub we dwoje w jednej przeglądarce. Pokoje i gracze z różnych komputerów
-pozostają do następnego etapu.
+z komputerem, we dwoje w jednej przeglądarce albo przez osobne klienty w pokoju online.
 
 Serwer można uruchomić bez JavaFX, z głównego katalogu repozytorium:
 
@@ -138,7 +160,8 @@ java -jar web/target/chess-web-1.0-SNAPSHOT.jar --port=8080
 
 Następnie otwórz `http://127.0.0.1:8080/`. `--port=0` wybiera wolny port
 i wypisuje adres. Przy przenoszeniu pliku JAR zachowaj katalog `web/target/lib`.
-Obecna konfiguracja nasłuchuje wyłącznie lokalnie na `127.0.0.1`.
+Domyślna konfiguracja nasłuchuje lokalnie na `127.0.0.1`. Opcja `--host=0.0.0.0`
+i jawny `--public-origin` pozwalają udostępnić serwer w sieci; patrz `docs/online.md`.
 
 ### Zmiany w React
 
@@ -156,6 +179,8 @@ zachować razem ze źródłami, aby zielona strzałka w IntelliJ działała bez 
 Po zmianach odśwież zasoby/uruchom ponownie aplikację. Do pracy z odświeżaniem
 na żywo uruchom osobno serwer Java na porcie 8080 i `npm run dev`.
 Vite przekazuje żądania `/api` do tego serwera.
+Przy pracy przez Vite dodaj do uruchomienia serwera Java
+`--public-origin=http://localhost:5173`, aby zezwolić na żądania z tego adresu.
 
 Kontrakt HTTP jest opisany w [docs/web-api.md](docs/web-api.md).
 

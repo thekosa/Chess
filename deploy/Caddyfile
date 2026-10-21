@@ -1,0 +1,4 @@
+{$CHESS_DOMAIN} {
+    encode zstd gzip
+    reverse_proxy chess:8080
+}

@@ -1,0 +1,9 @@
+.git
+.idea
+.tools
+**/target
+**/node_modules
+**/.vite
+out
+.env
+*.log

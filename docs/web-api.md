@@ -1,6 +1,8 @@
 # API wersji webowej
 
-API i pliki interfejsu są dostępne z tego samego adresu. Serwer uruchomiony
+API i pliki interfejsu są dostępne z tego samego adresu. Ten dokument opisuje
+prywatne partie lokalne/Stockfisha; pokoje online mają osobny kontrakt w
+[online.md](online.md). Serwer uruchomiony
 samodzielnie używa domyślnie `http://127.0.0.1:8080`, a okno wyboru korzysta
 z wolnego portu. Wszystkie odpowiedzi API są JSON z `Cache-Control: no-store`.
 Polecenia POST wymagają `Content-Type: application/json`; limit treści to 8 KiB.
@@ -111,5 +113,6 @@ ruchu, którego wyniku nie zna po zerwaniu połączenia.
 
 Sesje są przechowywane w pamięci i wygasają po 2 godzinach bezczynności.
 Restart serwera usuwa wszystkie partie. Obecne API jest lokalne, bez kont,
-ról graczy i pokojów sieciowych. Identyfikator sesji nie przydziela kolorów.
-Publikacja i gra z dwóch komputerów wymagają kolejnego etapu.
+ról graczy w prywatnej partii lokalnej. Identyfikator sesji `/api/games` nie przydziela kolorów.
+Do gry dwóch klientów użyj `/api/rooms` z tokenami miejsc — nie współdziel
+prywatnego identyfikatora lokalnej partii jako mechanizmu gry online.

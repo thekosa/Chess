@@ -8,6 +8,10 @@
 
 `React -> HTTP/JSON -> ChessWebServer -> ComputerGame -> LocalGame -> ChessRules -> GameState`
 
+`Web / konsola -> HTTP z tokenem miejsca -> Rooms.Room -> LocalGame`
+
+`konsola -> RemoteGame (network) -> HTTP -> Rooms.Room`
+
 Silnik jest biblioteką Java zależną wyłącznie od `java.base`.
 Interfejs otrzymuje obiekt `GameApi` w konstruktorze kontrolera.
 Punkty startowe tworzą `ComputerGame`, który implementuje `GameApi` i posiada
@@ -221,9 +225,34 @@ Przeglądarka respektuje `prefers-reduced-motion`; JavaFX i konsola przyjmują
 `-Dchess.reducedMotion=true`. Statyczny komunikat wyniku pozostaje dostępny
 również bez efektu. Ponowne odrysowanie stanu nie odtwarza pominiętej animacji.
 
-Ta wersja udostępnia lokalną partię dwóch osób lub grę przeciwko Stockfishowi.
-Do gry sieciowej potrzeba dodatkowo tożsamości i kolorów graczy,
-kontrolowanego dołączania do pokoju i powiadomień o zmianach pozycji.
+## Pokoje online
+
+`Rooms` przechowuje do 128 niezależnych pokoi w pamięci. `Room` szereguje
+dołączanie, odzyskiwanie połączenia, ruchy, zgłoszenia remisu i zgody na rewanż
+pod jednym monitorem. Limit dwóch miejsc jest sprawdzany na serwerze. Kolor
+pochodzi z uwierzytelnionego miejsca, nigdy z danych żądania ruchu.
+
+Każde miejsce ma tajny token odzyskiwania i osobny token aktywnego połączenia.
+Nowy `clientId` przy odzyskaniu miejsca wymienia token połączenia, unieważniając
+starą kartę. Lista pokoi ujawnia tylko dane lobby; plansza i polecenia wymagają
+tokena Bearer. Rozłączone miejsce pozostaje zarezerwowane. Opuszczenie zamyka
+cały pokój; bezczynne pokoje wygasają po 2 godzinach, a zamknięte są usuwane
+przy kolejnej operacji lobby.
+
+Frontend pokazuje lobby lub istniejącą planszę z własnym kolorem i uprawnieniami.
+Obaj gracze widzą aktualizacje przez polling HTTP co około 400–500 ms. Rewanż
+wymaga zgody obu stron i zamienia kolory. Nie ma zdalnego jednostronnego resetu.
+
+`network.RemoteGame` implementuje `GameApi` bez zależności od JavaFX, konsoli
+lub klas serwera. Tłumaczy JSON na niezmienne `GameState`; legalność zawsze
+wyznacza serwer. Odpytuje stan w tle, więc wejście terminala nadal reaguje.
+Moduł zależy od `core` i Gson. `console` zależy dodatkowo od `network`.
+
+`WebConfig` ustawia adres nasłuchiwania i dokładną listę dozwolonych originów.
+Samodzielny serwer przyjmuje konfigurację z argumentów lub środowiska.
+Docker/Caddy podaje stronę i API z jednego originu HTTPS. Partie nadal są
+w pamięci jednego procesu, bez bazy i koordynacji między replikami.
+Pełny kontrakt i wdrożenie opisuje `online.md`.
 
 ## Sprawdzanie
 

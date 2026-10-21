@@ -1,0 +1,30 @@
+services:
+  chess:
+    build: .
+    restart: unless-stopped
+    environment:
+      CHESS_HOST: 0.0.0.0
+      PORT: "8080"
+      CHESS_ALLOWED_ORIGINS: https://${CHESS_DOMAIN:?Set CHESS_DOMAIN in .env}
+    expose:
+      - "8080"
+    volumes:
+      - stockfish:/var/lib/chess/stockfish
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      CHESS_DOMAIN: ${CHESS_DOMAIN:?Set CHESS_DOMAIN in .env}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - chess
+volumes:
+  stockfish:
+  caddy-data:
+  caddy-config:
