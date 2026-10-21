@@ -18,6 +18,13 @@ final class GameJson {
         json.addProperty("halfmoveClock", state.halfmoveClock());
         json.addProperty("repetitionCount", state.repetitionCount());
         json.addProperty("canClaimDraw", state.canClaimDraw());
+        JsonObject rights = new JsonObject();
+        rights.addProperty("whiteKingSide", state.castlingRights().whiteKingSide());
+        rights.addProperty("whiteQueenSide", state.castlingRights().whiteQueenSide());
+        rights.addProperty("blackKingSide", state.castlingRights().blackKingSide());
+        rights.addProperty("blackQueenSide", state.castlingRights().blackQueenSide());
+        json.add("castlingRights", rights);
+        json.addProperty("enPassantTarget", state.enPassantTarget() == null ? null : state.enPassantTarget().toString());
         JsonArray board = new JsonArray();
         state.board().entrySet().stream().sorted(java.util.Comparator.comparing(entry -> entry.getKey().toString()))
                 .forEach(entry -> {

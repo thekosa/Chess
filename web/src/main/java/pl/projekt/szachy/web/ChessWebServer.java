@@ -12,22 +12,34 @@ import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/** Local HTTP adapter and static React files, reusable without JavaFX. */
+/** HTTP adapter, private games, two-player rooms and static React files, without JavaFX. */
 public final class ChessWebServer implements AutoCloseable {
     private final HttpServer server;
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
     private final GameSessions sessions = new GameSessions();
+    private final Rooms rooms = new Rooms();
+    private final Set<String> allowedOrigins;
+    private final String bindHost;
     private final AtomicBoolean closed = new AtomicBoolean();
 
-    private ChessWebServer(int port) throws IOException {
+    private ChessWebServer(WebConfig config) throws IOException {
+        bindHost = config.host();
         if (ChessWebServer.class.getResource("/public/index.html") == null) {
             throw new IOException("Brakuje frontendu. W web/frontend uruchom npm ci i npm run build.");
         }
-        server = HttpServer.create(new InetSocketAddress("127.0.0.1", port), 0);
+        server = HttpServer.create(new InetSocketAddress(config.host(), config.port()), 0);
+        allowedOrigins = new HashSet<>(config.allowedOrigins());
+        if (config.host().equals("127.0.0.1") || config.host().equals("localhost") || config.host().equals("::1")) {
+            allowedOrigins.add(WebConfig.origin("http://127.0.0.1:" + server.getAddress().getPort()));
+            allowedOrigins.add(WebConfig.origin("http://localhost:" + server.getAddress().getPort()));
+            allowedOrigins.add(WebConfig.origin("http://[::1]:" + server.getAddress().getPort()));
+        }
         server.setExecutor(executor);
         server.createContext("/", this::handle);
         server.start();
@@ -35,11 +47,15 @@ public final class ChessWebServer implements AutoCloseable {
 
     /** Port 0 asks the OS for an available port, avoiding collisions in the launcher. */
     public static ChessWebServer start(int port) throws IOException {
-        return new ChessWebServer(port);
+        return new ChessWebServer(new WebConfig("127.0.0.1", port, Set.of()));
     }
 
+    public static ChessWebServer start(WebConfig config) throws IOException { return new ChessWebServer(config); }
+
     public URI address() {
-        return URI.create("http://127.0.0.1:" + server.getAddress().getPort() + "/");
+        String host = bindHost.equals("0.0.0.0") ? "127.0.0.1" : bindHost.equals("::") ? "::1" : bindHost;
+        if (host.contains(":") && !host.startsWith("[")) host = "[" + host + "]";
+        return URI.create("http://" + host + ":" + server.getAddress().getPort() + "/");
     }
 
     private void handle(HttpExchange exchange) throws IOException {
@@ -76,6 +92,10 @@ public final class ChessWebServer implements AutoCloseable {
         }
         if (method.equals("POST")) {
             validateOrigin(exchange);
+        }
+        if (path.equals("/api/rooms") || path.startsWith("/api/rooms/")) {
+            roomsApi(exchange, path, method);
+            return;
         }
         if (path.equals("/api/games")) {
             requireMethod(method, "POST");
@@ -149,6 +169,73 @@ public final class ChessWebServer implements AutoCloseable {
                 json(exchange, 200, session.snapshot());
             } else {
                 throw new ApiException(404, "NOT_FOUND", "Nie znaleziono endpointu.");
+            }
+        }
+    }
+
+    private void roomsApi(HttpExchange exchange, String path, String method) throws IOException {
+        if (path.equals("/api/rooms")) {
+            if (method.equals("GET")) {
+                JsonObject result = new JsonObject(); result.add("rooms", rooms.list());
+                json(exchange, 200, result);
+            } else {
+                requireMethod(method, "POST");
+                JsonObject request = body(exchange);
+                json(exchange, 201, rooms.create(required(request, "name", true), required(request, "playerName", true),
+                        request.has("side") ? Side.valueOf(required(request, "side", true)) : Side.WHITE,
+                        required(request, "clientId", true)));
+            }
+            return;
+        }
+        String[] parts = path.split("/");
+        if (parts.length < 4 || parts.length > 5 || !parts[3].matches("[a-f0-9-]{36}")) {
+            throw new ApiException(404, "NOT_FOUND", "Nie znaleziono pokoju.");
+        }
+        Rooms.Room room = rooms.get(parts[3]);
+        synchronized (room) {
+            if (parts.length == 5 && (parts[4].equals("join") || parts[4].equals("reconnect"))) {
+                requireMethod(method, "POST");
+                JsonObject request = body(exchange);
+                JsonObject result = parts[4].equals("join")
+                        ? room.join(required(request, "playerName", true), required(request, "clientId", true))
+                        : room.reconnect(required(request, "playerToken", true), required(request, "clientId", true));
+                json(exchange, 200, result);
+                return;
+            }
+            String header = exchange.getRequestHeaders().getFirst("Authorization");
+            Rooms.Player player = room.authenticate(header != null && header.startsWith("Bearer ") ? header.substring(7) : null);
+            try {
+                if (parts.length == 4) {
+                    requireMethod(method, "GET"); json(exchange, 200, room.snapshot(player));
+                    return;
+                }
+                if (parts[4].equals("moves") && method.equals("GET")) {
+                    json(exchange, 200, room.moves(player, square(query(exchange.getRequestURI(), "from"))));
+                    return;
+                }
+                requireMethod(method, "POST");
+                JsonObject request = body(exchange);
+                if (parts[4].equals("leave")) {
+                    room.close();
+                    JsonObject result = new JsonObject(); result.addProperty("closed", true);
+                    json(exchange, 200, result); return;
+                }
+                String revision = required(request, "revision", false);
+                if (!revision.matches("0|[1-9][0-9]{0,15}")) throw new ApiException(400, "BAD_REVISION", "Niepoprawna rewizja.");
+                long expected = Long.parseLong(revision);
+                JsonObject result = switch (parts[4]) {
+                    case "moves" -> room.move(player, expected, new Move(square(required(request, "from", true)),
+                            square(required(request, "to", true)), request.has("promotion") && !request.get("promotion").isJsonNull()
+                            ? PieceType.valueOf(required(request, "promotion", true)) : null));
+                    case "claim-draw" -> room.claimDraw(player, expected);
+                    case "rematch" -> room.rematch(player, expected);
+                    default -> throw new ApiException(404, "NOT_FOUND", "Nie znaleziono endpointu.");
+                };
+                json(exchange, 200, result);
+            } catch (ApiException exception) {
+                JsonObject result = errorJson(exception.code, exception.getMessage());
+                if (!room.closed) result.add("state", room.snapshot(player));
+                json(exchange, exception.status, result);
             }
         }
     }
@@ -236,11 +323,10 @@ public final class ChessWebServer implements AutoCloseable {
         return null;
     }
 
-    private static void validateOrigin(HttpExchange exchange) {
+    private void validateOrigin(HttpExchange exchange) {
         String origin = exchange.getRequestHeaders().getFirst("Origin");
         if (origin != null) {
-            String host = URI.create(origin).getHost();
-            if (!"127.0.0.1".equals(host) && !"localhost".equals(host) && !"[::1]".equals(host)) {
+            if (!allowedOrigins.contains(WebConfig.origin(origin))) {
                 throw new ApiException(403, "ORIGIN_DENIED", "Niedozwolone źródło żądania.");
             }
         }
@@ -285,6 +371,7 @@ public final class ChessWebServer implements AutoCloseable {
         if (closed.compareAndSet(false, true)) {
             server.stop(0);
             sessions.close();
+            rooms.close();
             executor.shutdownNow();
         }
     }
