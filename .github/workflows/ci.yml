@@ -1,6 +1,7 @@
 name: Validate online chess
 
 on:
+  workflow_dispatch:
   push:
     branches: [online]
   pull_request:
