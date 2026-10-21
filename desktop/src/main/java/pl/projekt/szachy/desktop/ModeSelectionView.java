@@ -6,6 +6,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -41,6 +42,9 @@ final class ModeSelectionView {
         console.setId("console-mode");
         VBox consoleCard = card("02 / KONSOLA ASCII", "Szachy ze znaków",
                 "Rysowane figury, kolorowe pola i animacje. Ruchy wpisujesz z klawiatury.", console);
+        Button consoleOnline = new Button("Konsola online…");
+        consoleOnline.setMaxWidth(Double.MAX_VALUE);
+        consoleCard.getChildren().add(consoleOnline);
 
         Button web = new Button("Graj w przeglądarce");
         web.setId("web-mode");
@@ -53,6 +57,25 @@ final class ModeSelectionView {
         feedback.setWrapText(true);
         feedback.setMinHeight(42);
         feedback.getStyleClass().add("mode-feedback");
+        consoleOnline.setOnAction(event -> {
+            TextInputDialog dialog = new TextInputDialog("http://localhost:8080");
+            dialog.initOwner(stage);
+            dialog.setTitle("Konsola online");
+            dialog.setHeaderText("Podaj adres działającego serwera szachów.");
+            dialog.setContentText("Serwer:");
+            dialog.showAndWait().ifPresent(address -> {
+                consoleOnline.setDisable(true);
+                Thread worker = new Thread(() -> {
+                    try {
+                        ConsoleLauncher.launchOnline(address.strip());
+                        Platform.runLater(() -> feedback.setText("W terminalu wybierz pokój lub utwórz nowy."));
+                    } catch (Exception exception) {
+                        Platform.runLater(() -> feedback.setText("Nie udało się otworzyć konsoli online: " + exception.getMessage()));
+                    } finally { Platform.runLater(() -> consoleOnline.setDisable(false)); }
+                }, "launch-console-online");
+                worker.setDaemon(true); worker.start();
+            });
+        });
         web.setOnAction(event -> {
             try {
                 String address = openWeb.apply(options.options());

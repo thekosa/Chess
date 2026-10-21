@@ -2,6 +2,7 @@ package pl.projekt.szachy.console;
 
 import pl.projekt.szachy.core.api.GameApi;
 import pl.projekt.szachy.computer.*;
+import pl.projekt.szachy.network.RemoteGame;
 import pl.projekt.szachy.core.model.*;
 
 import java.io.IOException;
@@ -68,7 +69,7 @@ final class ConsoleGame {
                 game.newGame();
                 displayedState = game.getState();
                 clearSelection();
-                message = "Nowa partia. Zaczynaja biale.";
+                message = game instanceof RemoteGame remote ? remote.message() : "Nowa partia. Zaczynaja biale.";
             }
             case "moves" -> {
                 requireCount(parts, 2);
@@ -83,7 +84,9 @@ final class ConsoleGame {
                     throw new IllegalArgumentException("Rozmiary: full, compact, small, tiny.");
                 }
             }
-            case "help" -> message = "e2 e4; e7 e8 q/r/b/n; new; computer easy/medium/hard [white/black]; local; retry; draw; skip; quit.";
+            case "help" -> message = game instanceof RemoteGame
+                    ? "ONLINE: e2 e4; moves e2; e7 e8 q; new (rewanz za zgoda obu); draw; skip; quit (zamknij pokoj)."
+                    : "e2 e4; e7 e8 q/r/b/n; new; computer easy/medium/hard [white/black]; local; retry; draw; skip; quit.";
             case "draw" -> {
                 requireCount(parts, 1);
                 message = game.claimDraw() ? "Remis zostal zgloszony." : "W tej pozycji nie mozna zglosic remisu.";
@@ -133,6 +136,7 @@ final class ConsoleGame {
     }
 
     private void select(Square square) {
+        if (game instanceof RemoteGame remote && !remote.canMove()) throw new IllegalArgumentException(remote.message());
         if (game instanceof ComputerGame computer && computer.isComputerTurn()) {
             throw new IllegalArgumentException("Teraz gra Stockfish. W razie bledu: retry; nowa partia: new.");
         }
@@ -174,7 +178,7 @@ final class ConsoleGame {
             clearSelection();
             if (state.moveHistory().size() == displayedState.moveHistory().size() + 1) {
                 Move move = state.moveHistory().getLast();
-                message = "Stockfish: " + move.from() + " -> " + move.to() + ".";
+                message = (game instanceof RemoteGame ? "Przeciwnik: " : "Stockfish: ") + move.from() + " -> " + move.to() + ".";
                 try { animateMove(displayedState, state, move); }
                 catch (InterruptedException exception) { Thread.currentThread().interrupt(); }
             }
@@ -193,6 +197,7 @@ final class ConsoleGame {
             if (snapshot.thinking()) footer = "Stockfish mysli... Pierwszy start: pobieranie ok. 80 MB. new / quit";
             else if (snapshot.error() != null) footer = "Blad komputera. Wpisz retry / new / local. " + snapshot.error();
         }
+        if (game instanceof RemoteGame remote) footer = remote.message();
         return board.frame(state, selected, targets, footer);
     }
 

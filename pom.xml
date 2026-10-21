@@ -10,6 +10,7 @@
     <modules>
         <module>core</module>
         <module>computer</module>
+        <module>network</module>
         <module>console</module>
         <module>web</module>
         <module>desktop</module>
